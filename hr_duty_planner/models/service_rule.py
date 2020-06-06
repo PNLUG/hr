@@ -109,16 +109,16 @@ class ServiceRule(models.Model):
                 vehicle_list = (
                     service.vehicle_ids
                     if not service.parent_service_id or not lock
-                    else self.env['service.allocate']
-                             .search([('id', '=', service.parent_service_id.id),
-                                      ]).vehicle_ids
+                    else self.env['service.allocate'].search(
+                        [('id', '=', service.parent_service_id.id),
+                         ]).vehicle_ids
                     )
                 for vehicle in vehicle_list:
                     all_services = self.env['service.allocate'] \
                                        .search([('id', '!=', service.id),
                                                 ('scheduled_start', '<', date_fin),
                                                 ('scheduled_stop', '>', date_ini),
-                                                ('state', '!=', 'closed')
+                                                ('state', '!=', 'closed'),
                                                 ])
                     for service_double in all_services:
                         if vehicle in service_double.vehicle_ids:
@@ -179,8 +179,8 @@ class ServiceRule(models.Model):
             # get services where employee is assigned
             sql = ('SELECT service_allocate_id '
                    'FROM hr_employee_service_allocate_rel '
-                   'WHERE hr_employee_id='+str(employee.id))
-            self.env.cr.execute(sql)
+                   'WHERE hr_employee_id= %s')
+            self.env.cr.execute(sql, str(employee.id))
             # get duration of each service
             # _todo_ calculate as end-start
             for srv_id in self.env.cr.fetchall():
@@ -188,7 +188,7 @@ class ServiceRule(models.Model):
                                   .search([('id', '=', srv_id)]) \
                                   .service_template_id.duration
         raise UserError(_('Totale ore uomo %s') % (total_time))
-        return total_time
+        #return total_time
 
     def hour_rest_week(self):
         """

@@ -6,8 +6,11 @@
     "summary":  "Management of duty planning.",
     "version":  "12.0.1.0.0",
 
-    "author":   "Stefano Consolaro, Associazione PNLUG - Gruppo Odoo",
-    "website":  "https://github.com/PNLUG/vertical-ngo/",
+    "author":   "Stefano Consolaro <stefano.consolaro@mymage.it>, "
+    "Marcelo Frare <mf2965@gmail.com>"
+    "Associazione PNLUG - Gruppo Odoo, "
+    "Odoo Community Association (OCA)",
+    "website":  "https://github.com/OCA/hr/",
     "license":  "AGPL-3",
 
     "category": "Human Resources",
@@ -23,6 +26,7 @@
         'hr_skill',
         'hr_employee_partner',
         'fleet_vehicle_category',
+        'report_xlsx',
         ],
     "data": [
         'data/data_service_rule.xml',
@@ -39,6 +43,7 @@
         'views/service_expected_view.xml',
         'views/service_template_view.xml',
         'views/employee_profile.xml',
+        'reports/xlsx_allocated_service.xml',
         ],
     "css": [
         'static/src/css/hr_duty_planner.css',

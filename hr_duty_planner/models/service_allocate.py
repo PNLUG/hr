@@ -4,7 +4,10 @@
 from odoo import fields, models, api, _
 import datetime
 import json
+import logging
 
+
+_logger = logging.getLogger(__name__)
 
 class ServiceAllocate(models.Model):
     """
@@ -268,14 +271,14 @@ class ServiceAllocate(models.Model):
             for rule in employee.profile_id.parameter_ids:
                 # create rule element if not exists
                 try:
-                    _test = rule_method[rule.rule_id.method]
+                    rule_method[rule.rule_id.method]
                 except:
                     rule_method[rule.rule_id.method] = {}
-                _test = False
                 # save rile/field value
                 rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
-                                                    rule.field_value
-            print(employee.name+' '+json.dumps(rule_method))
+                    rule.field_value
+            _logger.info(employee.name+' '+json.dumps(rule_method))
+            # print(employee.name+' '+json.dumps(rule_method))
         return
 
     @api.model
