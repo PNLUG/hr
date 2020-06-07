@@ -114,13 +114,14 @@ Credits
 Authors
 ~~~~~~~
 
-* Stefano Consolaro
-* Associazione PNLUG - Gruppo Odoo
+* Stefano Consolaro <stefano.consolaro@mymage.it>
+* Marcelo Frare <mf2965@gmail.com>Associazione PNLUG - Gruppo Odoo
 
 Contributors
 ~~~~~~~~~~~~
 
 * Stefano Consolaro <stefano.consolaro@mymage.it>
+* Marcelo Frare <mf2965@gmail.com>
 
 Maintainers
 ~~~~~~~~~~~

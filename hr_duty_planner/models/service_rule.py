@@ -118,7 +118,7 @@ class ServiceRule(models.Model):
                                        .search([('id', '!=', service.id),
                                                 ('scheduled_start', '<', date_fin),
                                                 ('scheduled_stop', '>', date_ini),
-                                                ('state', '!=', 'closed')
+                                                ('state', '!=', 'closed'),
                                                 ])
                     for service_double in all_services:
                         if vehicle in service_double.vehicle_ids:
@@ -179,7 +179,7 @@ class ServiceRule(models.Model):
             # get services where employee is assigned
             sql = ('SELECT service_allocate_id '
                    'FROM hr_employee_service_allocate_rel '
-                   'WHERE hr_employee_id=%s')
+                   'WHERE hr_employee_id= %s')
             self.env.cr.execute(sql, str(employee.id))
             # get duration of each service
             # _todo_ calculate as end-start

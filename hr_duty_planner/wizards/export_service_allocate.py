@@ -1,7 +1,9 @@
+# Copyright 2020 Marcelo Frare (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html)
+
 from odoo import models, api, fields, _
 from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT
 from odoo.exceptions import UserError
-
 import datetime
 
 

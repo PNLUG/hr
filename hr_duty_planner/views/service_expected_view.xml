@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
-     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl) -->
-     
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
 <odoo>
     <!-- ############# EXPECTED SKILL #################### -->
     <record model="ir.ui.view" id="expected_skill_tree">

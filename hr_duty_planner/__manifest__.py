@@ -7,10 +7,10 @@
     "version":  "12.0.1.0.0",
 
     "author":   "Stefano Consolaro <stefano.consolaro@mymage.it>, "
-    "Marcelo Frare <mf2965@gmail.com>"
-    "Associazione PNLUG - Gruppo Odoo, "
-    "Odoo Community Association (OCA)",
-    "website":  "https://github.com/PNLUG/vertical-ngo/",
+                "Marcelo Frare <mf2965@gmail.com>"
+                "Associazione PNLUG - Gruppo Odoo, "
+                "Odoo Community Association (OCA)",
+    "website":  "https://github.com/OCA/hr/",
     "license":  "AGPL-3",
 
     "category": "Human Resources",

@@ -5,6 +5,8 @@ ToDo list
     * service template
         * DEV limit to 1 Container Service for off_duty type service
         * DEV management of working/holiday calendar
+    * service allocate
+        * DEV method to update all employees name list
     * service rule
         * DEV complete rule method management
     * calendar
@@ -32,7 +34,6 @@ ToDo list
         * DEV try add another level of group (ie. locality)
         * DEV check UIX
         * DEV check/alert template expected fulfillment
-        * FIX show computed field (employee_names)
         * FIX element dedicated color (web_timeline)
     * service rule
         * DEV add profile reference to employee, equipment, vehicle
@@ -42,11 +43,11 @@ ToDo list
         * FIX filter available fields for selected rule
         * DEV create check for rule-field assignment (association, mandatory)
     * reporting
-        * DEV all
+        * DEV basic report
 
 
 **Security**
-    * fix model authorizations
+    * FIX model authorizations
 
 
 **Readme**
