@@ -1,1 +1,2 @@
-from . import service_generate
+from . import service_generate, export_service_allocate
+

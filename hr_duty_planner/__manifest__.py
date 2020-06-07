@@ -26,6 +26,7 @@
         'hr_skill',
         # 'hr_employee_partner_external',
         'fleet_vehicle_category',
+        'report_xlsx',
         ],
     "data": [
         'data/data_service_rule.xml',
@@ -42,6 +43,7 @@
         'views/service_expected_view.xml',
         'views/service_template_view.xml',
         'views/employee_profile.xml',
+        'reports/xlsx_allocated_service.xml',
         ],
     "css": [
         'static/src/css/hr_duty_planner.css',

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <report
+        id="xlsx_allocated_service"
+        model="service.allocate"
+        string="Export allocated serivce to XLSX"
+        report_type="xlsx"
+        name="hr_duty_planner.xlsx_allocated_service"
+        file="hr_duty_planner.xlsx_allocated_service"
+        attachment_use="False"
+    />
+
+</odoo>
+
