@@ -12,11 +12,11 @@
         </record>
         <record model="service.rule" id="2">
             <field name="method">hour_active_week</field>
-            <field name="description">Rest hours per week</field>
+            <field name="description">Hours active per week</field>
         </record>
         <record model="service.rule" id="3">
             <field name="method">hour_active_month</field>
-            <field name="description">Rest hours per month</field>
+            <field name="description">Hours active per month</field>
         </record>
         <record model="service.rule" id="4">
             <field name="method">hour_rest_day</field>

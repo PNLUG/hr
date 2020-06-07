@@ -15,15 +15,10 @@ ToDo list
 **Views**
     * service template form
         * FIX custom css loading
-        * FIX eliminate self.id from next list
         * FIX on deploy off_duty set to readonly
-        * FIX auto select template on generation form
         * FIX layout
     * service allocate tree
         * FIX check rule button position
-        * FIX direct call of rule method for overlap check
-    * service allocate form
-        * FIX direct call of rule method for overlap check
     * service allocate calendar
         * DEV text format
         * DEV lock action on empty cells

@@ -41,6 +41,7 @@
                             <button name="%(hr_duty_planner.service_generate_wizard)d"
                                 attrs="{'invisible':[('off_duty','!=',False)]}"
                                 string="Generate Services" type="action"
+                                context="{'default_service_template_id': id}"
                                 class="oe_highlight"/>
                         </group>
                     </group>
@@ -59,7 +60,8 @@
                                    options="{'readonly_mode': 'color'}"/>
                             <br/>
                             <field name="next_template_id"
-                                   attrs="{'invisible':[('off_duty','!=',False)]}"/>
+                                   attrs="{'invisible':[('off_duty','!=',False)]}"
+                                   domain="[('id', '!=', id)]"/>
                             <field name="next_lock_employee"
                                    attrs="{'invisible':[('off_duty','!=',False)]}"/>
                             <field name="next_lock_equipment"

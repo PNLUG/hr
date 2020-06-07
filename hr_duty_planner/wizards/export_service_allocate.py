@@ -9,7 +9,9 @@ import datetime
 
 class AllocateService(models.TransientModel):
     _name = 'xlsx.allocate.service.wizard'
+    _description = 'Support to xls export'
 
+    # define report options
     layout_report = fields.Selection(
         [('list', 'List'),
          ('pivot', 'Pivot')
@@ -18,9 +20,11 @@ class AllocateService(models.TransientModel):
         default='pivot'
     )
 
+    # calculate default extration period
     d_start = datetime.datetime.now()
     d_end = d_start + datetime.timedelta(days=7)
 
+    # report fields
     date_from = fields.Date(string='From date',
                             default=d_start.strftime(DEFAULT_SERVER_DATE_FORMAT))
     date_to = fields.Date(string='To date',
@@ -28,20 +32,27 @@ class AllocateService(models.TransientModel):
 
     @api.multi
     def generate_report(self):
+        """
+        Extract data to sent to report and generate it
+        """
+
         if self.date_from > self.date_to or self.date_to < self.date_from:
             raise UserError(_('Date range is inconsistent.'))
 
+        # define filter for services
         domain = [
             ('scheduled_start', '>=', self.date_from),
             ('scheduled_start', '<=', self.date_to),
         ]
 
+        # extract services inside period
         service_list = self.env['service.allocate'].search(
             domain, order='service_container_id,service_template_id,scheduled_start')
 
         if not service_list:
             raise UserError(_('There are not data to show.'))
 
+        # define parameter to create report
         datas = {
             'ids': service_list.ids,
             'model': 'service.allocate',

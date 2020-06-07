@@ -8,11 +8,18 @@ from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT
 
 
 class XlsxAllocatedService(models.AbstractModel):
+    """
+    Define report to extract service data in xls format
+    """
+
     _name = 'report.hr_duty_planner.xlsx_allocated_service'
+    _description = 'Support to xls export'
     _inherit = 'report.report_xlsx.abstract'
 
     def generate_xlsx_report(self, workbook, data, extra):
-
+        """
+        Report type call management
+        """
         layout_report = data['form']['layout_report']
 
         if layout_report == 'pivot':
@@ -21,12 +28,17 @@ class XlsxAllocatedService(models.AbstractModel):
             self._export_list(workbook, data)
 
     def _export_list(self, workbook, data):
+        """
+        Extract basic data in a simple table list
+        """
 
+        # memorize data
         ids = data['ids']
         services = self.env['service.allocate'].browse(ids)
         date_from = data['form']['date_from']
         date_to = data['form']['date_to']
 
+        # define report parameters
         sheet = workbook.add_worksheet(_('Service allocate'))
         sheet.set_landscape()
         sheet.fit_to_pages(1, 0)
@@ -61,11 +73,11 @@ class XlsxAllocatedService(models.AbstractModel):
                                            'valign': 'top',
                                            })
 
-        # rows
+        # create rows
         row = 0
         header = False
         for service in services:
-            # header
+            # create header
             if not header:
                 header = True
                 sheet.write(row, 0, _('Allocated service'), bold_style)
@@ -93,6 +105,7 @@ class XlsxAllocatedService(models.AbstractModel):
                 sheet.write_row(row, 0, sheet_title, title_style)
                 row += 1
 
+            # format row data
             s_start = service.scheduled_start.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
             s_stop = service.scheduled_stop.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
             s_container = service.service_container_id.name
@@ -104,6 +117,7 @@ class XlsxAllocatedService(models.AbstractModel):
             # used to set row height
             max_rows = 1
 
+            # collect row employees
             s_employees = ''
             for employee in service.employee_ids:
                 s_employees += employee.name + ';\n'
@@ -112,6 +126,7 @@ class XlsxAllocatedService(models.AbstractModel):
             if len(service.employee_ids) > max_rows:
                 max_rows = len(service.employee_ids)
 
+            # collect row vehicles
             s_vehicles = ''
             for vehicle in service.vehicle_ids:
                 s_vehicles += vehicle.name + ';\n'
@@ -120,6 +135,7 @@ class XlsxAllocatedService(models.AbstractModel):
             if len(service.vehicle_ids) > max_rows:
                 max_rows = len(service.vehicle_ids)
 
+            # collect row equipments
             s_equipments = ''
             for equipment in service.equipment_ids:
                 s_equipments += equipment.name + ';\n'
@@ -148,7 +164,11 @@ class XlsxAllocatedService(models.AbstractModel):
         return row
 
     def _export_pivot(self, workbook, data):
+        """
+        Generate a pivot table: use as example
+        """
 
+        # memorize data
         ids = data['ids']
         services = self.env['service.allocate'].browse(ids)
         date_from = data['form']['date_from']
@@ -164,6 +184,7 @@ class XlsxAllocatedService(models.AbstractModel):
             if date_start not in dates_start:
                 dates_start.append(date_start)
 
+        # set table formats
         sheet = workbook.add_worksheet(_('Service allocate'))
         sheet.set_landscape()
         sheet.fit_to_pages(1, 0)
@@ -187,14 +208,14 @@ class XlsxAllocatedService(models.AbstractModel):
         # rows
         row = 0
 
-        #  used to write only one time each record
+        # used to write only one time each record
         already_read = []
 
         # used to add header
         header = False
 
         for service in services:
-            # header
+            # create header
             if not header:
                 header = True
                 sheet.write(0, 0, _('Allocated service'), bold_style)
@@ -236,7 +257,7 @@ class XlsxAllocatedService(models.AbstractModel):
                 # write service
                 self._write_service(service, row, sheet, workbook, dates_start)
 
-                # identify record
+                # memorize worked record
                 already_read.append(service.id)
 
                 for find in services:
@@ -249,11 +270,14 @@ class XlsxAllocatedService(models.AbstractModel):
                             # write service
                             self._write_service(find, row, sheet, workbook, dates_start)
 
-                            # identify record
+                            # memorize worked record
                             already_read.append(find.id)
         return row
 
     def _write_service(self, service, row, sheet, workbook, dates_start):
+        """
+        Write content of a pivot report cell
+        """
 
         left_style = workbook.add_format({'bold': False,
                                           'align': 'left',
@@ -270,6 +294,7 @@ class XlsxAllocatedService(models.AbstractModel):
         # used to set row height
         max_rows = 3
 
+        # collect employees data
         s_employees = ''
         for employee in service.employee_ids:
             s_employees += employee.name + ';\n'
@@ -278,6 +303,7 @@ class XlsxAllocatedService(models.AbstractModel):
         if len(service.employee_ids) > max_rows:
             max_rows = len(service.employee_ids)
 
+        # collect vehicles data
         s_vehicles = ''
         for vehicle in service.vehicle_ids:
             s_vehicles += vehicle.name + ';\n'
@@ -286,6 +312,7 @@ class XlsxAllocatedService(models.AbstractModel):
         if len(service.vehicle_ids) > max_rows:
             max_rows = len(service.vehicle_ids)
 
+        # collect equipments data
         s_equipments = ''
         for equipment in service.equipment_ids:
             s_equipments += equipment.name + ';\n'
@@ -299,7 +326,7 @@ class XlsxAllocatedService(models.AbstractModel):
         sheet.set_row(row+1, 20 * max_rows)
         sheet.set_row(row+2, 20 * max_rows)
 
-        # row details
+        # write row details
         sheet.write(row, col, s_employees or '', left_style)
         sheet.write(row+1, col, s_vehicles or '', left_style)
         sheet.write(row+2, col, s_equipments or '', left_style)

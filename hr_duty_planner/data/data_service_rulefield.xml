@@ -21,11 +21,11 @@
             <field name="field_default">4</field>
             <field name="field_mandatory">True</field>
         </record>
-        <!-- rule hour_active_week / id=2 -->
+        <!-- rule hour_rest_week / id=5 -->
         <record model="service.rulefield" id="3">
-            <field name="rule_id">2</field>
+            <field name="rule_id">5</field>
             <field name="field_name">h_min</field>
-            <field name="field_desc">Maximum rest hours per week</field>
+            <field name="field_desc">Minimum rest hours per week</field>
             <field name="field_default">24</field>
             <field name="field_mandatory">True</field>
         </record>

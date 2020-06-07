@@ -144,10 +144,10 @@ class ServiceAllocate(models.Model):
         Check if all required skills are covered by employees
         """
         for service in self:
-            # clear error message
-            self.employee_check = ''
             # get requested skills by template
             skill_request = service.service_template_id.exp_skill_ids
+            # set error message
+            self.employee_check = '' if skill_request else 'Not checked'
             # for each request counts available employees
             for request in skill_request:
                 available_qty = 0
@@ -173,10 +173,10 @@ class ServiceAllocate(models.Model):
         Check if all required categories are covered by equipments
         """
         for service in self:
-            # clear error message
-            self.equipment_check = ''
             # get requested categoryies by template
             category_request = service.service_template_id.exp_eqp_cat_ids
+            # set error message
+            self.employee_check = '' if category_request else 'Not checked'
             # for each request counts available categories
             for request in category_request:
                 available_qty = 0
@@ -202,10 +202,10 @@ class ServiceAllocate(models.Model):
         Check if all required type are covered by vehicles
         """
         for service in self:
-            # clear error message
-            self.vehicle_check = ''
             # get requested categoryies by template
             vehicle_request = service.service_template_id.exp_vehicle_ids
+            # set error message
+            self.employee_check = '' if vehicle_request else 'Not checked'
             # for each request counts available types
             for request in vehicle_request:
                 available_qty = 0
@@ -265,7 +265,7 @@ class ServiceAllocate(models.Model):
         # get employee of the service
         for employee in self.env['service.allocate'] \
                             .search([('id', '=', parameters['srv_id'])]).employee_ids:
-            # memorixe a dictionary of rules and fields
+            # memorize a dictionary of rules and fields
             rule_method = {}
             # get rules of the profile associated to the employee
             for rule in employee.profile_id.parameter_ids:
@@ -274,11 +274,48 @@ class ServiceAllocate(models.Model):
                     rule_method[rule.rule_id.method]
                 except:
                     rule_method[rule.rule_id.method] = {}
-                # save rile/field value
+                # save rule/field value
                 rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
                     rule.field_value
+            # _todo_ activate check logic on method
             _logger.info(employee.name+' '+json.dumps(rule_method))
-            # print(employee.name+' '+json.dumps(rule_method))
+
+        # get vehicle of the service
+        for vehicle in self.env['service.allocate'] \
+                           .search([('id', '=', parameters['srv_id'])]).vehicle_ids:
+            # memorize a dictionary of rules and fields
+            rule_method = {}
+            # get rules of the profile associated to the vehicle
+            for rule in vehicle.profile_id.parameter_ids:
+                # create rule element if not exists
+                try:
+                    rule_method[rule.rule_id.method]
+                except:
+                    rule_method[rule.rule_id.method] = {}
+                # save rule/field value
+                rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
+                    rule.field_value
+            # _todo_ activate check logic on method
+            _logger.info(vehicle.name+' '+json.dumps(rule_method))
+
+        # get equipment of the service
+        for equipment in self.env['service.allocate'] \
+                             .search([('id', '=', parameters['srv_id'])]).equipment_ids:
+            # memorize a dictionary of rules and fields
+            rule_method = {}
+            # get rules of the profile associated to the equipment
+            for rule in equipment.profile_id.parameter_ids:
+                # create rule element if not exists
+                try:
+                    rule_method[rule.rule_id.method]
+                except:
+                    rule_method[rule.rule_id.method] = {}
+                # save rule/field value
+                rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
+                    rule.field_value
+            # _todo_ activate check logic on method
+            _logger.info(equipment.name+' '+json.dumps(rule_method))
+
         return
 
     @api.model
@@ -292,6 +329,9 @@ class ServiceAllocate(models.Model):
         if not new_service.generation_id:
             new_service.generation_id = datetime.datetime.now(). \
                 strftime("M %Y-%m-%d-%H-%M-%S")
+
+        new_service._compute_emply_name()
+        new_service._check_skill_request()
 
         # generate next service if present on template
         if new_service.service_template_id.next_template_id.id:

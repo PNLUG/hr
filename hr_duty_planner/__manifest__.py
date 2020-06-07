@@ -43,6 +43,8 @@
         'views/service_expected_view.xml',
         'views/service_template_view.xml',
         'views/employee_profile.xml',
+        'views/vehicle_profile.xml',
+        'views/equipment_profile.xml',
         'reports/xlsx_allocated_service.xml',
         ],
     "css": [

@@ -8,7 +8,9 @@
  **Select Rules → Profile**
   * Create a Profile
   * Add rule fields with values
-  * Add profile to Employees: Employee → get one → fill Service Profile
+  * Add profile to Employees: Employees → get one → fill Service Profile
+  * Add profile to Vehicle: Fleet → get one → fill Service Profile
+  * Add profile to Equipment: Maintenance → Equipments → get one → fill Service Profile
 
  **Employee**
   * Create desired Skills: get an Employee → Skill tab → add row → create
@@ -34,7 +36,7 @@
 
  **Select Template → Service Template → your template**
   * Clik on *Generate Services* button
-  * Select a Template
+  * Template is preselected
   * Select a Container
   * Select a start date-time 
   * Select a stop date-time

@@ -1,96 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Copyright 2020 Marcelo Frare (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html)
 -->
 <odoo>
     <data noupdate="1">
-
-        <!-- vehicle category -->
-        <record id="vehicle_category_1" model="fleet.vehicle.category">
-            <field name="name">Ambulance</field>
-        </record>
-        <record id="vehicle_category_2" model="fleet.vehicle.category">
-            <field name="name">Doctor's car</field>
-        </record>
-        <record id="vehicle_category_3" model="fleet.vehicle.category">
-            <field name="name">Pickup</field>
-        </record>
-
-        <!-- expected vehicle category -->
-        <record id="vehicle_exp_1" model="expected.vhcl_category">
-            <field name="vehicle_category_id" eval="ref('vehicle_category_1')"/>
-            <field name="min_qty">1</field>
-            <field name="max_qty">1</field>
-        </record>
-        <record id="vehicle_exp_2" model="expected.vhcl_category">
-            <field name="vehicle_category_id" eval="ref('vehicle_category_2')"/>
-            <field name="min_qty">1</field>
-            <field name="max_qty">1</field>
-        </record>
-
-        <!-- fleet vehicle -->
-        <record id="vehicle_1" model="fleet.vehicle">
-            <field name="model_id">1</field>
-            <field name="vehicle_category_id" eval="ref('vehicle_category_1')"/>
-            <field name="license_plate">PN-2020-LUG</field>
-        </record>
-        <record id="vehicle_2" model="fleet.vehicle">
-            <field name="model_id">1</field>
-            <field name="vehicle_category_id" eval="ref('vehicle_category_1')"/>
-            <field name="license_plate">OD-2020-OO</field>
-        </record>
-
-        <!-- equipment category -->
-        <record id="equipment_cat_1" model="maintenance.equipment.category">
-            <field name="name">Electrical continuity</field>
-        </record>
-        <record id="equipment_cat_2" model="maintenance.equipment.category">
-            <field name="name">Pulmonary support</field>
-        </record>
-        <record id="equipment_cat_3" model="maintenance.equipment.category">
-            <field name="name">Heart support</field>
-        </record>
-        <record id="equipment_cat_4" model="maintenance.equipment.category">
-            <field name="name">Hardware</field>
-        </record>
-
-        <!-- equipment type -->
-        <record id="equipment_type_1" model="expected.eqpmnt_cat">
-            <field name="eqp_cat_id" eval="ref('equipment_cat_1')"/>
-        </record>
-        <record id="equipment_type_2" model="expected.eqpmnt_cat">
-            <field name="eqp_cat_id" eval="ref('equipment_cat_2')"/>
-        </record>
-        <record id="equipment_type_3" model="expected.eqpmnt_cat">
-            <field name="eqp_cat_id" eval="ref('equipment_cat_3')"/>
-        </record>
-
-        <!-- equipment dedicated -->
-        <record id="equipment_1" model="maintenance.equipment">
-            <field name="name">Generator set 1</field>
-            <field name="category_id" eval="ref('equipment_cat_1')"/>
-        </record>
-        <record id="equipment_2" model="maintenance.equipment">
-            <field name="name">Oxygen tank 1</field>
-            <field name="category_id" eval="ref('equipment_cat_2')"/>
-        </record>
-        <record id="equipment_3" model="maintenance.equipment">
-            <field name="name">Defibrillator 1</field>
-            <field name="category_id" eval="ref('equipment_cat_3')"/>
-        </record>
-        <record id="equipment_4" model="maintenance.equipment">
-            <field name="name">Generator set 2</field>
-            <field name="category_id" eval="ref('equipment_cat_1')"/>
-        </record>
-        <record id="equipment_5" model="maintenance.equipment">
-            <field name="name">Oxygen tank 2</field>
-            <field name="category_id" eval="ref('equipment_cat_2')"/>
-        </record>
-        <record id="equipment_6" model="maintenance.equipment">
-            <field name="name">Defibrillator 2</field>
-            <field name="category_id" eval="ref('equipment_cat_3')"/>
-        </record>
 
         <!-- service profile parameter -->
         <record id="service_profileparameter_1" model="service.profileparameter">
@@ -118,6 +33,11 @@
             <field name="rule_field_id">1</field>
             <field name="field_value">16</field>
         </record>
+        <record id="service_profileparameter_6" model="service.profileparameter">
+            <field name="rule_id">5</field>
+            <field name="rule_field_id">3</field>
+            <field name="field_value">24</field>
+        </record>
 
         <!-- service profiles -->
         <record id="service_profile_1" model="service.profile">
@@ -142,6 +62,11 @@
             <field name="name">Controller</field>
             <field name="parameter_ids" 
                 eval="[(4, ref('service_profileparameter_4'))]" />
+        </record>
+        <record id="service_profile_5" model="service.profile">
+            <field name="name">Vehicle/Equipment check</field>
+            <field name="parameter_ids" 
+                eval="[(4, ref('service_profileparameter_6'))]" />
         </record>
 
         <!-- hr employee -->
@@ -258,6 +183,100 @@
             <field name="skill_id" eval="ref('hr_skill_5')"/>
         </record>
 
+        <!-- vehicle category -->
+        <record id="vehicle_category_1" model="fleet.vehicle.category">
+            <field name="name">Ambulance</field>
+        </record>
+        <record id="vehicle_category_2" model="fleet.vehicle.category">
+            <field name="name">Doctor's car</field>
+        </record>
+        <record id="vehicle_category_3" model="fleet.vehicle.category">
+            <field name="name">Pickup</field>
+        </record>
+
+        <!-- expected vehicle category -->
+        <record id="vehicle_exp_1" model="expected.vhcl_category">
+            <field name="vehicle_category_id" eval="ref('vehicle_category_1')"/>
+            <field name="min_qty">1</field>
+            <field name="max_qty">1</field>
+        </record>
+        <record id="vehicle_exp_2" model="expected.vhcl_category">
+            <field name="vehicle_category_id" eval="ref('vehicle_category_2')"/>
+            <field name="min_qty">1</field>
+            <field name="max_qty">1</field>
+        </record>
+
+        <!-- fleet vehicle -->
+        <record id="vehicle_1" model="fleet.vehicle">
+            <field name="model_id">1</field>
+            <field name="vehicle_category_id" eval="ref('vehicle_category_1')"/>
+            <field name="license_plate">PN-2020-LUG</field>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+        <record id="vehicle_2" model="fleet.vehicle">
+            <field name="model_id">1</field>
+            <field name="vehicle_category_id" eval="ref('vehicle_category_1')"/>
+            <field name="license_plate">OD-2020-OO</field>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+
+        <!-- equipment category -->
+        <record id="equipment_cat_1" model="maintenance.equipment.category">
+            <field name="name">Electrical continuity</field>
+        </record>
+        <record id="equipment_cat_2" model="maintenance.equipment.category">
+            <field name="name">Pulmonary support</field>
+        </record>
+        <record id="equipment_cat_3" model="maintenance.equipment.category">
+            <field name="name">Heart support</field>
+        </record>
+        <record id="equipment_cat_4" model="maintenance.equipment.category">
+            <field name="name">Hardware</field>
+        </record>
+
+        <!-- equipment type -->
+        <record id="equipment_type_1" model="expected.eqpmnt_cat">
+            <field name="eqp_cat_id" eval="ref('equipment_cat_1')"/>
+        </record>
+        <record id="equipment_type_2" model="expected.eqpmnt_cat">
+            <field name="eqp_cat_id" eval="ref('equipment_cat_2')"/>
+        </record>
+        <record id="equipment_type_3" model="expected.eqpmnt_cat">
+            <field name="eqp_cat_id" eval="ref('equipment_cat_3')"/>
+        </record>
+
+        <!-- equipment dedicated -->
+        <record id="equipment_1" model="maintenance.equipment">
+            <field name="name">Generator set 1</field>
+            <field name="category_id" eval="ref('equipment_cat_1')"/>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+        <record id="equipment_2" model="maintenance.equipment">
+            <field name="name">Oxygen tank 1</field>
+            <field name="category_id" eval="ref('equipment_cat_2')"/>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+        <record id="equipment_3" model="maintenance.equipment">
+            <field name="name">Defibrillator 1</field>
+            <field name="category_id" eval="ref('equipment_cat_3')"/>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+        <record id="equipment_4" model="maintenance.equipment">
+            <field name="name">Generator set 2</field>
+            <field name="category_id" eval="ref('equipment_cat_1')"/>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+        <record id="equipment_5" model="maintenance.equipment">
+            <field name="name">Oxygen tank 2</field>
+            <field name="category_id" eval="ref('equipment_cat_2')"/>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+        <record id="equipment_6" model="maintenance.equipment">
+            <field name="name">Defibrillator 2</field>
+            <field name="category_id" eval="ref('equipment_cat_3')"/>
+            <field name="profile_id" eval="ref('service_profile_5')"/>
+        </record>
+
         <!-- service container -->
         <record id="service_container_1" model="service.container">
             <field name="name">Emergency support</field>
@@ -279,7 +298,7 @@
             <field name="exp_skill_ids" eval="[(6, 0, [ref('expected_skill_3')])]"/>
             <field name="duration">16</field>
             <field name="duration_uom_id">6</field>
-            <field name="color">#6AFF6A</field>
+            <field name="base_color">#6AFF6A</field>
         </record>
 
         <record id="service_template_2" model="service.template">
@@ -288,7 +307,7 @@
             <field name="exp_skill_ids" eval="[(6, 0, [ref('expected_skill_3')])]"/>
             <field name="duration">16</field>
             <field name="duration_uom_id">6</field>
-            <field name="color">#6A6AFF</field>
+            <field name="base_color">#6A6AFF</field>
         </record>
 
         <record id="service_template_3" model="service.template">
@@ -297,7 +316,7 @@
             <field name="duration">8</field>
             <field name="duration_uom_id">6</field>
             <field name="off_duty">True</field>
-            <field name="color">#BEBEBE</field>
+            <field name="base_color">#BEBEBE</field>
         </record>
 
         <record id="service_template_4" model="service.template">
@@ -309,7 +328,7 @@
             <field name="exp_skill_ids" eval="[(6, 0, [ref('expected_skill_1'),ref('expected_skill_2')])]"/>
             <field name="exp_eqp_cat_ids" eval="[(6, 0, [ref('equipment_type_1'),ref('equipment_type_2'),ref('equipment_type_3')])]"/>
             <field name="exp_vehicle_ids" eval="[(6, 0, [ref('vehicle_exp_1')])]" />
-            <field name="color">#FF6A6A</field>
+            <field name="base_color">#FF6A6A</field>
         </record>
 
         <!-- service allocate - emergency -->
