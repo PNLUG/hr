@@ -160,10 +160,10 @@ class ServiceAllocate(models.Model):
                         available_qty += 1
                 if available_qty < request.min_qty:
                     self.employee_check += (_('Missing %s\n')
-                                            % (request.skill_id.name))
-                if request.max_qty > 0 and available_qty > request.max_qty:
+                                            % request.skill_id.name)
+                if available_qty > request.max_qty > 0:
                     self.employee_check += (_('Too many %s\n')
-                                            % (request.skill_id.name))
+                                            % request.skill_id.name)
         if self.employee_check == '':
             self.employee_check = 'All covered'
         return
@@ -189,10 +189,10 @@ class ServiceAllocate(models.Model):
                         available_qty += 1
                 if available_qty < request.min_qty:
                     self.equipment_check += (_('Missing %s\n')
-                                             % (request.eqp_cat_id.name))
-                if request.max_qty > 0 and available_qty > request.max_qty:
+                                             % request.eqp_cat_id.name)
+                if available_qty > request.max_qty > 0:
                     self.equipment_check += (_('Too many %s\n')
-                                             % (request.eqp_cat_id.name))
+                                             % request.eqp_cat_id.name)
         if self.equipment_check == '':
             self.equipment_check = 'All covered'
         return
@@ -218,10 +218,10 @@ class ServiceAllocate(models.Model):
                         available_qty += 1
                 if available_qty < request.min_qty:
                     self.vehicle_check += (_('Missing %s\n')
-                                           % (request.vehicle_category_id.name))
-                if request.max_qty > 0 and available_qty > request.max_qty:
+                                           % request.vehicle_category_id.name)
+                if available_qty > request.max_qty > 0:
                     self.vehicle_check += (_('Too many %s\n')
-                                           % (request.vehicle_category_id.name))
+                                           % request.vehicle_category_id.name)
         if self.vehicle_check == '':
             self.vehicle_check = 'All covered'
         return
@@ -253,6 +253,7 @@ class ServiceAllocate(models.Model):
         _TODO_ _FIX_ direct call to service.rule.rule_call on the button
         """
         result = self.env['service.rule'].rule_call(parameters['rule_name'],
+                                                    parameters['param'],
                                                     parameters['srv_id'])
         return result
 
@@ -279,6 +280,14 @@ class ServiceAllocate(models.Model):
                     rule.field_value
             # _todo_ activate check logic on method
             _logger.info(employee.name+' '+json.dumps(rule_method))
+            for method in rule_method:
+                _logger.info(method+' '+json.dumps(rule_method[method]))
+                for param in rule_method[method]:
+                    _logger.info(param+' '+rule_method[method][param])
+                self.rule_call({'rule_name': method,
+                                'param': json.dumps(rule_method[method]),
+                                'srv_id': employee.id
+                                })
 
         # get vehicle of the service
         for vehicle in self.env['service.allocate'] \

@@ -88,6 +88,7 @@
                             <button name="rule_call" colspan="2"
                                     string="Check rules TEST"
                                     context = "{'rule_name':'hour_active_week',
+                                                'param':'{}',
                                                 'srv_id': id}"
                                     type="object" class="btn-primary"/>
                             <br/>

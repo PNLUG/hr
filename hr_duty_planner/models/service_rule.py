@@ -3,6 +3,10 @@
 
 from odoo import fields, models, _
 from odoo.exceptions import UserError
+import json
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ServiceRule(models.Model):
@@ -131,11 +135,13 @@ class ServiceRule(models.Model):
             raise UserError(_('Elements with overlapped shift:')+'\n'+rule_msg)
         return rule_result
 
-    def rule_call(self, rule, obj_id):
+    def rule_call(self, rule, param, obj_id):
         """
         Call requested rule
-        @param  rule    obj: form select element with name of the rule to call:
-                             has to be in rule_id selection
+        @param  rule  string: name of the rule
+        @param  param json: parameters to pass to the method
+        @param  obj_id  obj: object on wich check the method
+
         @return    rule elaboration
         """
 
@@ -145,16 +151,17 @@ class ServiceRule(models.Model):
         method = getattr(self, rule_name, "_invalid_rule")
         # Call the method as we return it
         if method == '_invalid_rule':
-            self._invalid_rule(rule_name)
+            result = self._invalid_rule(rule_name)
         else:
-            result = method(obj_id)
+            result = method(param, obj_id)
         return result
 
     def _invalid_rule(self, rule_name):
         """
         Management of method non defined
         """
-        raise UserError(_('Method %s not defined') % (rule_name))
+        # raise UserError(_('Method %s not defined') % (rule_name))
+        _logger.error('ERROR _invalid_rule: '+rule_name)
 
     def _rule_method_template(self):
         """
@@ -164,7 +171,7 @@ class ServiceRule(models.Model):
         """
         return 0
 
-    def hour_active_week(self, obj_id):
+    def hour_active_week(self, param, obj_id):
         """
         Calculate the total of active hours of a resource in a week.
         By active hours is meant work+on call
@@ -180,20 +187,47 @@ class ServiceRule(models.Model):
             sql = ('SELECT service_allocate_id '
                    'FROM hr_employee_service_allocate_rel '
                    'WHERE hr_employee_id= %s')
-            self.env.cr.execute(sql, str(employee.id))
+            self.env.cr.execute(sql % str(employee.id))
             # get duration of each service
             # _todo_ calculate as end-start
             for srv_id in self.env.cr.fetchall():
                 total_time += self.env['service.allocate'] \
-                                  .search([('id', '=', srv_id)]) \
+                                  .search([('id', 'in', srv_id)]) \
                                   .service_template_id.duration
         raise UserError(_('Totale ore uomo %s') % (total_time))
         # return total_time
 
-    def hour_rest_week(self):
+    def hour_rest_week(self, param, obj_id):
         """
         Calculate the total of rest hours of a resource in a week.
         By active hours is meant not work or on call
         _todo_ define/set active shift
         """
         return 8
+
+    def hour_active_month(self, param, res_id):
+        """
+        Calculate the total of active hours of a resource in a month.
+        By active hours is meant work+on call
+
+        _todo_ define/set active shift
+        """
+        total_time = 0
+
+        # get services where employee is assigned
+        sql = ('SELECT service_allocate_id '
+               'FROM hr_employee_service_allocate_rel '
+               'WHERE hr_employee_id= %s')
+        self.env.cr.execute(sql, (tuple(res_id),))
+        # get duration of each service
+        # _todo_ calculate as end-start
+        for srv_id in self.env.cr.fetchall():
+            total_time += self.env['service.allocate'] \
+                              .search([('id', 'in', srv_id)]) \
+                              .service_template_id.duration
+        emp_name = self.env['hr.employee'].search([('id', '=', res_id)]).name
+        param_dict = json.loads(param)
+        # raise UserError
+        _logger.error(_('Totale ore (mese) %s: %s [limite %s]')
+                      % (emp_name, total_time, param_dict['h_max']))
+        # return total_time
