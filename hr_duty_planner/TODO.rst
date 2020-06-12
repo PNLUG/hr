@@ -9,6 +9,7 @@ ToDo list
         * DEV method to update all employees name list
     * service rule
         * DEV complete rule method management
+        * DEV management of errors: log/popup
     * calendar
         * DEV check module
 

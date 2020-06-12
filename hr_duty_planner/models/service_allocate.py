@@ -250,17 +250,24 @@ class ServiceAllocate(models.Model):
 
     def rule_call(self, parameters):
         """
-        _TODO_ _FIX_ direct call to service.rule.rule_call on the button
+        Call a rule method
+        @param  parameter   dict: parameters to pass to the method
+                rule_name   string: name of the method
+                param       json: name:value couples with method parameters
+                srv_id      int: id of the service
+                res_obj     obj: resourse object to check with the roule
         """
         result = self.env['service.rule'].rule_call(parameters['rule_name'],
                                                     parameters['param'],
-                                                    parameters['srv_id'])
+                                                    parameters['srv_id'],
+                                                    parameters['res_obj'],
+                                                    )
         return result
 
     def check_resource_rule(self, parameters):
         """
         Check rules for each resource associated to the service
-        @param srv_id int: id of the service
+        @param srv_id   int: id of the service
         """
 
         # get employee of the service
@@ -278,15 +285,14 @@ class ServiceAllocate(models.Model):
                 # save rule/field value
                 rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
                     rule.field_value
-            # _todo_ activate check logic on method
+            # _todo_ remove log
             _logger.info(employee.name+' '+json.dumps(rule_method))
+            # execute the memorized rules
             for method in rule_method:
-                _logger.info(method+' '+json.dumps(rule_method[method]))
-                for param in rule_method[method]:
-                    _logger.info(param+' '+rule_method[method][param])
                 self.rule_call({'rule_name': method,
                                 'param': json.dumps(rule_method[method]),
-                                'srv_id': employee.id
+                                'srv_id': employee.id,
+                                'res_obj': employee,
                                 })
 
         # get vehicle of the service

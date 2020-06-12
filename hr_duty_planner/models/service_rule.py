@@ -135,14 +135,15 @@ class ServiceRule(models.Model):
             raise UserError(_('Elements with overlapped shift:')+'\n'+rule_msg)
         return rule_result
 
-    def rule_call(self, rule, param, obj_id):
+    def rule_call(self, rule, param, srv_id, res_obj):
         """
         Call requested rule
-        @param  rule  string: name of the rule
-        @param  param json: parameters to pass to the method
-        @param  obj_id  obj: object on wich check the method
+        @param  rule    string: name of the rule
+        @param  param   json: name:value couples of parameters to pass to the method
+        @param  srv_id  int: service id
+        @param  res_obj obj: resource object
 
-        @return    rule elaboration
+        @return dict: rule elaboration
         """
 
         # _TODO_ check if in rule_id
@@ -153,25 +154,44 @@ class ServiceRule(models.Model):
         if method == '_invalid_rule':
             result = self._invalid_rule(rule_name)
         else:
-            result = method(param, obj_id)
+            result = method(param, srv_id, res_obj)
         return result
 
     def _invalid_rule(self, rule_name):
         """
         Management of method non defined
         """
+        # _todo_ log/popup error management
         # raise UserError(_('Method %s not defined') % (rule_name))
         _logger.error('ERROR _invalid_rule: '+rule_name)
 
-    def _rule_method_template(self):
-        """
-        Rules definition template
-        @param  _todo_
-        @return _todo_
-        """
-        return 0
+        return {'message': 'Rule '+rule_name+' not defined',
+                'result': False,
+                'data': {}
+                }
 
-    def hour_active_week(self, param, obj_id):
+    ####################################################################################
+    # Rules's method definition
+
+    def _rule_method_template(self, param, srv_id, res_obj):
+        """
+        Rules template definition
+
+        For standard development each rule method must have all the same parameters
+        defined: use false value in call if not used
+
+        @param  param   json: name:value couples of method's parameters
+        @param  srv_id  id: id of the service
+        @param  res_obj obj: resourse object
+
+        @return dictionary: {'message': string, 'result': boolean, 'data': dict}
+            message: description of the elaboration result
+            result: True/False based on the logic
+            data: informations to be used by another method
+        """
+        return {'message': 'Template', 'result': True, 'data': {}}
+
+    def hour_active_week(self, param, srv_id, res_obj):
         """
         Calculate the total of active hours of a resource in a week.
         By active hours is meant work+on call
@@ -182,30 +202,30 @@ class ServiceRule(models.Model):
 
         # extract employees of the service
         for employee in (self.env['service.allocate']
-                         .search([('id', '=', obj_id)]).employee_ids):
+                         .search([('id', '=', srv_id)]).employee_ids):
             # get services where employee is assigned
             sql = ('SELECT service_allocate_id '
                    'FROM hr_employee_service_allocate_rel '
                    'WHERE hr_employee_id= %s')
-            self.env.cr.execute(sql % str(employee.id))
+            self.env.cr.execute(sql, (str(employee.id),))
             # get duration of each service
             # _todo_ calculate as end-start
-            for srv_id in self.env.cr.fetchall():
+            for fetch_srv_id in self.env.cr.fetchall():
                 total_time += self.env['service.allocate'] \
-                                  .search([('id', 'in', srv_id)]) \
+                                  .search([('id', 'in', fetch_srv_id)]) \
                                   .service_template_id.duration
         raise UserError(_('Totale ore uomo %s') % (total_time))
         # return total_time
 
-    def hour_rest_week(self, param, obj_id):
+    def hour_rest_week(self, param, srv_id, res_obj):
         """
         Calculate the total of rest hours of a resource in a week.
         By active hours is meant not work or on call
         _todo_ define/set active shift
         """
-        return 8
+        return {'message': 'To DO', 'result': True, 'data': {'hour': 8}}
 
-    def hour_active_month(self, param, res_id):
+    def hour_active_month(self, param, srv_id, res_obj):
         """
         Calculate the total of active hours of a resource in a month.
         By active hours is meant work+on call
@@ -218,16 +238,16 @@ class ServiceRule(models.Model):
         sql = ('SELECT service_allocate_id '
                'FROM hr_employee_service_allocate_rel '
                'WHERE hr_employee_id= %s')
-        self.env.cr.execute(sql, (tuple(res_id),))
+        self.env.cr.execute(sql, (res_obj.id,))
         # get duration of each service
         # _todo_ calculate as end-start
-        for srv_id in self.env.cr.fetchall():
+        for fetch_srv_id in self.env.cr.fetchall():
             total_time += self.env['service.allocate'] \
-                              .search([('id', 'in', srv_id)]) \
+                              .search([('id', 'in', fetch_srv_id)]) \
                               .service_template_id.duration
-        emp_name = self.env['hr.employee'].search([('id', '=', res_id)]).name
+        empl_name = self.env['hr.employee'].search([('id', '=', res_obj.id)]).name
         param_dict = json.loads(param)
         # raise UserError
-        _logger.error(_('Totale ore (mese) %s: %s [limite %s]')
-                      % (emp_name, total_time, param_dict['h_max']))
+        _logger.info(_('Totale ore (mese) %s: %s [limite %s]')
+                     % (empl_name, total_time, param_dict['h_max']))
         # return total_time
