@@ -68,35 +68,57 @@
                             <field name="employee_ids" widget="many2many_tags"/>
                             <field name="employee_check" readonly="1" force_save="1"/>
                             <field name="employee_names" force_save="1"/>
+                            <button style="font-size:.8em"
+                                name="check_skill_request" colspan="2"
+                                string="Check Skills"
+                                type="object" class="btn-primary"/>
                             <br/>
                             <field name="equipment_ids" widget="many2many_tags"/>
                             <field name="equipment_check" readonly="1" force_save="1"/>
+                            <button style="font-size:.8em"
+                                name="check_equipment_request" colspan="2"
+                                string="Check Equipments"
+                                type="object" class="btn-primary"/>
                             <br/>
                             <field name="vehicle_ids" widget="many2many_tags"/>
                             <field name="vehicle_check" readonly="1" force_save="1"/>
+                            <button style="font-size:.8em"
+                                name="check_vehicle_request" colspan="2"
+                                string="Check Vehicles"
+                                type="object" class="btn-primary"/>
                             <br/>
                             
                         </group>
                         <group>
-                            <!-- _TODO_ _FIX_ direct
-                                call to service.rule.double_assign on the button -->
-                            <button name="double_assign" colspan="2"
-                                    string="Check double assignments"
+                            <group>
+                                <button
+                                    name="%(hr_duty_planner.service_duplicate_wizard)d"
+                                    attrs="{'invisible':[('off_duty','!=',False)]}"
+                                    string="Duplicate Service" type="action"
+                                    context="{'default_service_allocate_id': id}"
+                                    class="oe_highlight"/>
+                            </group>
+                            <br/>
+                            <group string="Test buttons">
+                                <button
+                                    name="double_assign" colspan="2"
+                                    string="Check double assignments PopUp"
                                     context = "{'resource_type':'all', 'srv_id': id}"
                                     type="object" class="btn-primary"/>
-                            <br/>
-                            <button name="rule_call" colspan="2"
-                                    string="Check rules TEST"
-                                    context = "{'rule_name':'hour_active_week',
-                                                'param':'{}',
-                                                'srv_id': id,
-                                                'res_obj': False}"
-                                    type="object" class="btn-primary"/>
-                            <br/>
-                            <button name="check_resource_rule" colspan="2"
-                                    string="Check resources rules"
-                                    context = "{'srv_id': id}"
-                                    type="object" class="btn-primary"/>
+                                <br/>
+                                <button name="rule_call" colspan="2"
+                                        string="Check hour-active-week PopUp"
+                                        context = "{'rule_name':'hour_active_week',
+                                                    'param':'{}',
+                                                    'srv_id': id,
+                                                    'res_obj': False}"
+                                        type="object" class="btn-primary"/>
+                                <br/>
+                                <button name="check_resource_rule" colspan="2"
+                                        string="Check resources rules Log"
+                                        context = "{'srv_id': id}"
+                                        type="object" class="btn-primary"/>
+                            </group>
                         </group>
                     </group>
 

@@ -18,9 +18,9 @@
                 <field name="service_container_ids" widget="many2many_tags"/>
                 <field name="duration"/>
                 <field name="duration_uom_id"/>
-                <field name="exp_skill_ids" widget="many2many_tags"/>
-                <field name="exp_vehicle_ids" widget="many2many_tags"/>
-                <field name="exp_eqp_cat_ids" widget="many2many_tags"/>
+                <field name="exp_empl_skill_ids" widget="many2many_tags"/>
+                <field name="exp_eqpmt_category_ids" widget="many2many_tags"/>
+                <field name="exp_vhcl_type_ids" widget="many2many_tags"/>
                 <field name="next_template_id"/>
             </tree>
         </field>
@@ -73,23 +73,23 @@
                     <group class="sp_td_label"
                         attrs="{'invisible':[('off_duty','!=',False)]}">
                         <h1 colspan="2">Requested Features</h1>
-                         <field name="exp_skill_ids" widget="one2many_list" >
+                         <field name="exp_empl_skill_ids" widget="one2many_list" >
                             <tree string="Lines" editable="bottom">
                                 <field name="skill_id"/>
                                 <field name="min_qty"/>
                                 <field name="max_qty"/>
                             </tree>
                         </field>
-                        <field name="exp_vehicle_ids" widget="one2many_list" >
+                        <field name="exp_eqpmt_category_ids" widget="one2many_list" >
                             <tree string="Lines" editable="bottom">
-                                <field name="vehicle_category_id"/>
+                                <field name="eqp_cat_id"/>
                                 <field name="min_qty"/>
                                 <field name="max_qty"/>
                             </tree>
                         </field>
-                        <field name="exp_eqp_cat_ids" widget="one2many_list" >
+                        <field name="exp_vhcl_type_ids" widget="one2many_list" >
                             <tree string="Lines" editable="bottom">
-                                <field name="eqp_cat_id"/>
+                                <field name="vehicle_category_id"/>
                                 <field name="min_qty"/>
                                 <field name="max_qty"/>
                             </tree>

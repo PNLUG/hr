@@ -75,7 +75,16 @@ class ServiceRule(models.Model):
                                                 ('state', '!=', 'closed')
                                                 ])
                     for service_double in all_services:
-                        if employee in service_double.employee_ids:
+                        # get employees of the parent if exists and template locks them
+                        employee_ref = (
+                            service_double.parent_service_id.employee_ids
+                            if service_double.parent_service_id and
+                            service_double.parent_service_id
+                                          .service_template_id
+                                          .next_lock_employee
+                            else service_double.employee_ids
+                            )
+                        if employee in employee_ref:
                             rule_result = False
                             rule_msg += (('Shift %s/%s: %s\n') % (service.id,
                                                                   service_double.id,
@@ -100,7 +109,16 @@ class ServiceRule(models.Model):
                                                 ('state', '!=', 'closed')
                                                 ])
                     for service_double in all_services:
-                        if equipment in service_double.equipment_ids:
+                        # get equipments of the parent if exists and template locks them
+                        equipment_ref = (
+                            service_double.parent_service_id.equipment_ids
+                            if service_double.parent_service_id and
+                            service_double.parent_service_id
+                                          .service_template_id
+                                          .next_lock_equipment
+                            else service_double.equipment_ids
+                            )
+                        if equipment in equipment_ref:
                             rule_result = False
                             rule_msg += (('Shift %s/%s: %s\n') % (service.id,
                                                                   service_double.id,
@@ -125,7 +143,16 @@ class ServiceRule(models.Model):
                                                 ('state', '!=', 'closed'),
                                                 ])
                     for service_double in all_services:
-                        if vehicle in service_double.vehicle_ids:
+                        # get vehicles of the parent if exists and template locks them
+                        vehicle_ref = (
+                            service_double.parent_service_id.vehicle_ids
+                            if service_double.parent_service_id and
+                            service_double.parent_service_id
+                                          .service_template_id
+                                          .next_lock_vehicle
+                            else service_double.vehicle_ids
+                            )
+                        if vehicle in vehicle_ref:
                             rule_result = False
                             rule_msg += (('Shift %s/%s: %s\n') % (service.id,
                                                                   service_double.id,
@@ -182,7 +209,7 @@ class ServiceRule(models.Model):
 
         @param  param   json: name:value couples of method's parameters
         @param  srv_id  id: id of the service
-        @param  res_obj obj: resourse object
+        @param  res_obj obj: resource object
 
         @return dictionary: {'message': string, 'result': boolean, 'data': dict}
             message: description of the elaboration result

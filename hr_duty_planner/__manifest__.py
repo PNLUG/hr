@@ -34,6 +34,7 @@
         'data/demo.xml',
         'security/ir.model.access.csv',
         'wizards/service_generate.xml',
+        'wizards/service_duplicate.xml',
         'views/service_menu.xml',
         'views/service_allocate_view.xml',
         'views/service_rule_view.xml',

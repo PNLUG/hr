@@ -295,7 +295,7 @@
         <record id="service_template_1" model="service.template">
             <field name="name">Call center diurnal</field>
             <field name="service_container_ids" eval="[(6, 0,[ref('service_container_2')])]"/>
-            <field name="exp_skill_ids" eval="[(6, 0, [ref('expected_skill_3')])]"/>
+            <field name="exp_empl_skill_ids" eval="[(6, 0, [ref('expected_skill_3')])]"/>
             <field name="duration">16</field>
             <field name="duration_uom_id">6</field>
             <field name="base_color">#6AFF6A</field>
@@ -304,7 +304,7 @@
         <record id="service_template_2" model="service.template">
             <field name="name">Call center night</field>
             <field name="service_container_ids" eval="[(6, 0,[ref('service_container_2')])]"/>
-            <field name="exp_skill_ids" eval="[(6, 0, [ref('expected_skill_3')])]"/>
+            <field name="exp_empl_skill_ids" eval="[(6, 0, [ref('expected_skill_3')])]"/>
             <field name="duration">16</field>
             <field name="duration_uom_id">6</field>
             <field name="base_color">#6A6AFF</field>
@@ -325,9 +325,9 @@
             <field name="duration">8</field>
             <field name="duration_uom_id">6</field>
             <field name="next_template_id" eval="ref('service_template_3')"/>
-            <field name="exp_skill_ids" eval="[(6, 0, [ref('expected_skill_1'),ref('expected_skill_2')])]"/>
-            <field name="exp_eqp_cat_ids" eval="[(6, 0, [ref('equipment_type_1'),ref('equipment_type_2'),ref('equipment_type_3')])]"/>
-            <field name="exp_vehicle_ids" eval="[(6, 0, [ref('vehicle_exp_1')])]" />
+            <field name="exp_empl_skill_ids" eval="[(6, 0, [ref('expected_skill_1'),ref('expected_skill_2')])]"/>
+            <field name="exp_eqpmt_category_ids" eval="[(6, 0, [ref('equipment_type_1'),ref('equipment_type_2'),ref('equipment_type_3')])]"/>
+            <field name="exp_vhcl_type_ids" eval="[(6, 0, [ref('vehicle_exp_1')])]" />
             <field name="base_color">#FF6A6A</field>
         </record>
 

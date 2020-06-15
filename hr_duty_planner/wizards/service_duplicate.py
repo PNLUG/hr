@@ -1,27 +1,22 @@
 # Copyright 2020 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models, api
+from odoo import fields, models
 import datetime
 
 
-class ServiceGenerateWizard(models.TransientModel):
+class ServiceDuplicateWizard(models.TransientModel):
     """
-    Generation of empty allocated services from a template
+    Generation of a duplicate of an allocate service
     """
-    _name = 'service.generate'
-    _description = 'Generate a list of services'
 
-    # template service reference
-    service_template_id = fields.Many2one('service.template',
-                                          string='Template service',
-                                          required=True,
+    _name = 'service.duplicate'
+    _description = 'Duplicate an allocate service'
+
+    # allocate service reference
+    service_allocate_id = fields.Many2one('service.allocate',
+                                          string='Allocate service',
                                           )
-    # container service reference
-    service_container_id = fields.Many2one('service.container',
-                                           string='Container service',
-                                           required=True,
-                                           )
 
     # scheduled start time
     date_init = fields.Datetime('Start date', required=True)
@@ -29,6 +24,10 @@ class ServiceGenerateWizard(models.TransientModel):
     date_stop = fields.Datetime('Stop date', required=True)
     # standard duration
     interval = fields.Integer('Interval', required=True, default=8)
+    # resources options
+    copy_employee = fields.Boolean('Copy Employees', default=True)
+    copy_equipment = fields.Boolean('Copy Equipments', default=True)
+    copy_vehicle = fields.Boolean('Copy Vehicles', default=True)
     # calendar options
     day_mon = fields.Boolean('Monday', default=True)
     day_tue = fields.Boolean('Tuensday', default=True)
@@ -42,29 +41,19 @@ class ServiceGenerateWizard(models.TransientModel):
     day_hol = fields.Boolean('Holidays', default=False,
                              help='Include calendar holidays')
 
-    # utility to filter container services to template's container services
-    @api.onchange('service_template_id')
-    def _get_template_container(self):
+    def duplicate_service(self):
         """
-        Extract list of container services associated to the template service
-        """
-        container_list = []
-        # reset value to avoid errors
-        self.service_container_id = [(5)]
-        for container_service in self.service_template_id.service_container_ids:
-            container_list.append(container_service.id)
-
-        return {'domain': {'service_container_id': [('id', 'in', container_list)]}}
-
-    def generate_service(self):
-        """
-        Generate a series of allocate services based on the selected template with
+        Generate a series of allocate services based on the selected tone with
         start date inside the period limits
         """
 
-        service_template = self.service_template_id
+        service_allocate = self.service_allocate_id
+        duration = self.service_allocate_id.service_template_id.duration
         date_pointer = self.date_init
         interval_set = self.interval
+        copy_employee = self.copy_employee
+        copy_equipment = self.copy_equipment
+        copy_vehicle = self.copy_vehicle
         day_week = {0: self.day_mon,
                     1: self.day_tue,
                     2: self.day_wed,
@@ -77,8 +66,8 @@ class ServiceGenerateWizard(models.TransientModel):
 
         while True:
             # get minimum between interval and duration
-            interval_set = (interval_set if interval_set > service_template.duration
-                            else service_template.duration)
+            interval_set = (interval_set if interval_set > duration
+                            else duration)
 
             # check end of requested period
             if(date_pointer > self.date_stop):
@@ -92,14 +81,30 @@ class ServiceGenerateWizard(models.TransientModel):
 
             # _todo_ check calendar for working days and holidays
 
+            _tmp_template_id = self.service_allocate_id.service_template_id.id
+            _tmp_container_id = self.service_allocate_id.service_container_id.id
+
             new_service_data = {
-                "service_template_id"   : self.service_template_id.id,
-                "service_container_id"  : self.service_container_id.id,
+                "service_template_id"   : _tmp_template_id,
+                "service_container_id"  : _tmp_container_id,
                 "scheduled_start"       : date_pointer,
                 "generation_id"         : generation_id,
                 }
 
-            self.env['service.allocate'].create(new_service_data)
+            new_service = self.env['service.allocate'].create(new_service_data)
+
+            # copy resources from the original service
+            if copy_employee:
+                new_service.employee_ids = service_allocate.employee_ids
+            if copy_equipment:
+                new_service.equipment_ids = service_allocate.equipment_ids
+            if copy_vehicle:
+                new_service.vehicle_ids = service_allocate.vehicle_ids
+
+            # update resource info
+            new_service.check_skill_request()
+            new_service.check_equipment_request()
+            new_service.check_vehicle_request()
 
             # calculate next start date
             date_pointer = date_pointer + datetime.timedelta(hours=interval_set)

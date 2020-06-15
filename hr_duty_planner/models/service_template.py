@@ -34,14 +34,14 @@ class ServiceTemplate(models.Model):
                                    'service to manage rest/maintenance conditions')
 
     # expected vehicles
-    exp_vehicle_ids = fields.Many2many('expected.vhcl_category',
-                                       string='Vehicles')
+    exp_vhcl_type_ids = fields.Many2many('expected.vhcl_category',
+                                         string='Vehicles')
     # expected skills
-    exp_skill_ids = fields.Many2many('expected.skill',
-                                     string='Operator Skills')
+    exp_empl_skill_ids = fields.Many2many('expected.skill',
+                                          string='Operator Skills')
     # expected equipment category
-    exp_eqp_cat_ids = fields.Many2many('expected.eqpmnt_cat',
-                                       string='Equipment Category')
+    exp_eqpmt_category_ids = fields.Many2many('expected.eqpmnt_cat',
+                                              string='Equipment Category')
 
     # product reference used to valorize
     product_id = fields.Many2one('product.product',

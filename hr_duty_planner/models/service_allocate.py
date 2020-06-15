@@ -40,20 +40,20 @@ class ServiceAllocate(models.Model):
     service_color = fields.Char('Color',
                                 related='service_template_id.base_color')
 
-    # assigned vehicles
-    vehicle_ids = fields.Many2many('fleet.vehicle', string='Vehicles')
-    # message for vehicles check
-    vehicle_check = fields.Text('Vehicles coverage', store=True)
     # assigned employee
     employee_ids = fields.Many2many('hr.employee', string='Team')
     # employee names
     employee_names = fields.Text('Employees', compute='_compute_emply_name', store=True)
     # message for skills check
-    employee_check = fields.Text('Skills coverage', store=True)
+    employee_check = fields.Text('Skills coverage', default='', store=True)
     # assigned equipment
     equipment_ids = fields.Many2many('maintenance.equipment', string='Equipment')
     # message for equipments check
-    equipment_check = fields.Text('Equipments coverage', store=True)
+    equipment_check = fields.Text('Equipments coverage', default='', store=True)
+    # assigned vehicles
+    vehicle_ids = fields.Many2many('fleet.vehicle', string='Vehicles')
+    # message for vehicles check
+    vehicle_check = fields.Text('Vehicles coverage', default='', store=True)
 
     # locality reference
     locality = fields.Char('Locality')
@@ -109,8 +109,7 @@ class ServiceAllocate(models.Model):
         """
         Call methods on employees changes
         """
-        self._compute_emply_name()
-        self._check_skill_request()
+        self.check_skill_request()
 
     @api.multi
     @api.onchange('equipment_ids')
@@ -118,7 +117,7 @@ class ServiceAllocate(models.Model):
         """
         Call methods on equipments changes
         """
-        self._check_equipment_request()
+        self.check_equipment_request()
 
     @api.multi
     @api.onchange('vehicle_ids')
@@ -126,7 +125,7 @@ class ServiceAllocate(models.Model):
         """
         Call methods on vehicles changes
         """
-        self._check_vehicle_request()
+        self.check_vehicle_request()
 
     # changes dedicated methods
     def _compute_emply_name(self):
@@ -139,13 +138,13 @@ class ServiceAllocate(models.Model):
                 service.employee_names += employee.name + '\n'
         return
 
-    def _check_skill_request(self):
+    def check_skill_request(self):
         """
         Check if all required skills are covered by employees
         """
         for service in self:
             # get requested skills by template
-            skill_request = service.service_template_id.exp_skill_ids
+            skill_request = service.service_template_id.exp_empl_skill_ids
             # set error message
             self.employee_check = '' if skill_request else 'Not checked'
             # for each request counts available employees
@@ -159,24 +158,29 @@ class ServiceAllocate(models.Model):
                          ]):
                         available_qty += 1
                 if available_qty < request.min_qty:
-                    self.employee_check += (_('Missing %s\n')
-                                            % request.skill_id.name)
+                    self.employee_check += (_('Missing %s (min %s)\n')
+                                            % (request.skill_id.name,
+                                               request.min_qty)
+                                            )
                 if available_qty > request.max_qty > 0:
-                    self.employee_check += (_('Too many %s\n')
-                                            % request.skill_id.name)
+                    self.employee_check += (_('Too many %s (max %s)\n')
+                                            % (request.skill_id.name,
+                                               request.max_qty)
+                                            )
         if self.employee_check == '':
             self.employee_check = 'All covered'
+        self._compute_emply_name()
         return
 
-    def _check_equipment_request(self):
+    def check_equipment_request(self):
         """
         Check if all required categories are covered by equipments
         """
         for service in self:
             # get requested categoryies by template
-            category_request = service.service_template_id.exp_eqp_cat_ids
+            category_request = service.service_template_id.exp_eqpmt_category_ids
             # set error message
-            self.employee_check = '' if category_request else 'Not checked'
+            self.equipment_check = '' if category_request else 'Not checked'
             # for each request counts available categories
             for request in category_request:
                 available_qty = 0
@@ -188,24 +192,28 @@ class ServiceAllocate(models.Model):
                          ]):
                         available_qty += 1
                 if available_qty < request.min_qty:
-                    self.equipment_check += (_('Missing %s\n')
-                                             % request.eqp_cat_id.name)
+                    self.equipment_check += (_('Missing %s (min %s)\n')
+                                             % (request.eqp_cat_id.name,
+                                                request.min_qty)
+                                             )
                 if available_qty > request.max_qty > 0:
-                    self.equipment_check += (_('Too many %s\n')
-                                             % request.eqp_cat_id.name)
+                    self.equipment_check += (_('Too many %s (max %s)\n')
+                                             % (request.eqp_cat_id.name,
+                                                request.max_qty)
+                                             )
         if self.equipment_check == '':
             self.equipment_check = 'All covered'
         return
 
-    def _check_vehicle_request(self):
+    def check_vehicle_request(self):
         """
         Check if all required type are covered by vehicles
         """
         for service in self:
             # get requested categoryies by template
-            vehicle_request = service.service_template_id.exp_vehicle_ids
+            vehicle_request = service.service_template_id.exp_vhcl_type_ids
             # set error message
-            self.employee_check = '' if vehicle_request else 'Not checked'
+            self.vehicle_check = '' if vehicle_request else 'Not checked'
             # for each request counts available types
             for request in vehicle_request:
                 available_qty = 0
@@ -217,11 +225,15 @@ class ServiceAllocate(models.Model):
                          ]):
                         available_qty += 1
                 if available_qty < request.min_qty:
-                    self.vehicle_check += (_('Missing %s\n')
-                                           % request.vehicle_category_id.name)
+                    self.vehicle_check += (_('Missing %s (min %s)\n')
+                                           % (request.vehicle_category_id.name,
+                                              request.min_qty)
+                                           )
                 if available_qty > request.max_qty > 0:
-                    self.vehicle_check += (_('Too many %s\n')
-                                           % request.vehicle_category_id.name)
+                    self.vehicle_check += (_('Too many %s (max %s)\n')
+                                           % (request.vehicle_category_id.name,
+                                              request.max_qty)
+                                           )
         if self.vehicle_check == '':
             self.vehicle_check = 'All covered'
         return
@@ -345,8 +357,9 @@ class ServiceAllocate(models.Model):
             new_service.generation_id = datetime.datetime.now(). \
                 strftime("M %Y-%m-%d-%H-%M-%S")
 
-        new_service._compute_emply_name()
-        new_service._check_skill_request()
+        new_service.check_skill_request()
+        new_service.check_equipment_request()
+        new_service.check_vehicle_request()
 
         # generate next service if present on template
         if new_service.service_template_id.next_template_id.id:

@@ -41,6 +41,9 @@ ToDo list
     * reporting
         * DEV basic report
 
+**Functional**
+    * service
+        * DEV define how to manage real start/end time
 
 **Security**
     * FIX model authorizations
