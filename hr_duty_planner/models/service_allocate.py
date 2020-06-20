@@ -45,15 +45,16 @@ class ServiceAllocate(models.Model):
     # employee names
     employee_names = fields.Text('Employees', compute='_compute_emply_name', store=True)
     # message for skills check
-    employee_check = fields.Text('Skills coverage', default='', store=True)
+    employee_check = fields.Text('Skills coverage', default='Not checked', store=True)
     # assigned equipment
     equipment_ids = fields.Many2many('maintenance.equipment', string='Equipment')
     # message for equipments check
-    equipment_check = fields.Text('Equipments coverage', default='', store=True)
+    equipment_check = fields.Text('Equipments coverage', default='Not checked',
+                                  store=True)
     # assigned vehicles
     vehicle_ids = fields.Many2many('fleet.vehicle', string='Vehicles')
     # message for vehicles check
-    vehicle_check = fields.Text('Vehicles coverage', default='', store=True)
+    vehicle_check = fields.Text('Vehicles coverage', default='Not checked', store=True)
 
     # locality reference
     locality = fields.Char('Locality')
@@ -135,9 +136,10 @@ class ServiceAllocate(models.Model):
         for service in self:
             service.employee_names = ''
             for employee in service.employee_ids:
-                service.employee_names += employee.name + '\n'
+                service.employee_names += employee.name + ', \n'
         return
 
+    @api.onchange('service_template_id')
     def check_skill_request(self):
         """
         Check if all required skills are covered by employees
@@ -146,7 +148,9 @@ class ServiceAllocate(models.Model):
             # get requested skills by template
             skill_request = service.service_template_id.exp_empl_skill_ids
             # set error message
-            self.employee_check = '' if skill_request else 'Not checked'
+            self.employee_check = ''
+                                  if skill_request or service.off_duty \
+                                  else 'Not checked'
             # for each request counts available employees
             for request in skill_request:
                 available_qty = 0
@@ -172,6 +176,7 @@ class ServiceAllocate(models.Model):
         self._compute_emply_name()
         return
 
+    @api.onchange('service_template_id')
     def check_equipment_request(self):
         """
         Check if all required categories are covered by equipments
@@ -180,7 +185,9 @@ class ServiceAllocate(models.Model):
             # get requested categoryies by template
             category_request = service.service_template_id.exp_eqpmt_category_ids
             # set error message
-            self.equipment_check = '' if category_request else 'Not checked'
+            self.equipment_check = ''
+                                   if category_request or service.off_duty \
+                                   else 'Not checked'
             # for each request counts available categories
             for request in category_request:
                 available_qty = 0
@@ -205,6 +212,7 @@ class ServiceAllocate(models.Model):
             self.equipment_check = 'All covered'
         return
 
+    @api.onchange('service_template_id')
     def check_vehicle_request(self):
         """
         Check if all required type are covered by vehicles
@@ -213,7 +221,9 @@ class ServiceAllocate(models.Model):
             # get requested categoryies by template
             vehicle_request = service.service_template_id.exp_vhcl_type_ids
             # set error message
-            self.vehicle_check = '' if vehicle_request else 'Not checked'
+            self.vehicle_check = ''
+                                 if vehicle_request or service.off_duty \
+                                 else 'Not checked'
             # for each request counts available types
             for request in vehicle_request:
                 available_qty = 0
@@ -254,7 +264,9 @@ class ServiceAllocate(models.Model):
 
     def double_assign(self, parameters):
         """
-        _TODO_ _FIX_ direct call to service.rule.double_assign on the button
+        Call rule for double assignment check
+        @param resource_type    string: all | employee | equipment | vehicle
+        @param srv_id           int: service id
         """
         result = self.env['service.rule'].double_assign(parameters['resource_type'],
                                                         parameters['srv_id'])
@@ -280,6 +292,11 @@ class ServiceAllocate(models.Model):
         """
         Check rules for each resource associated to the service
         @param srv_id   int: id of the service
+
+        _todo_
+            disassemble method per resource type;
+            pass resource id
+            pass period limits
         """
 
         # get employee of the service
@@ -300,12 +317,24 @@ class ServiceAllocate(models.Model):
             # _todo_ remove log
             _logger.info(employee.name+' '+json.dumps(rule_method))
             # execute the memorized rules
+            employee_result = {'message': '',
+                               'result': True,
+                               'data': {},
+                               }
             for method in rule_method:
-                self.rule_call({'rule_name': method,
+                result = self.rule_call({
+                                'rule_name': method,
                                 'param': json.dumps(rule_method[method]),
                                 'srv_id': employee.id,
                                 'res_obj': employee,
                                 })
+                result['data'].update(employee_result['data'])
+                employee_result = {
+                    'message': employee_result['message'] +
+                               employee.name + ' ' + result['message'] + '\n',
+                    'result': True * result['result'],
+                    'data': result['data'],
+                    }
 
         # get vehicle of the service
         for vehicle in self.env['service.allocate'] \
@@ -343,7 +372,8 @@ class ServiceAllocate(models.Model):
             # _todo_ activate check logic on method
             _logger.info(equipment.name+' '+json.dumps(rule_method))
 
-        return
+        # _todo_ complete with equipment vehicle
+        return employee_result
 
     @api.model
     def create(self, values):
@@ -356,7 +386,6 @@ class ServiceAllocate(models.Model):
         if not new_service.generation_id:
             new_service.generation_id = datetime.datetime.now(). \
                 strftime("M %Y-%m-%d-%H-%M-%S")
-
         new_service.check_skill_request()
         new_service.check_equipment_request()
         new_service.check_vehicle_request()
@@ -377,6 +406,12 @@ class ServiceAllocate(models.Model):
                 "parent_service_id"     : new_service.id,
                 "generation_id"         : new_service.generation_id,
                 }
+            # clear checks for off duty services
+            if new_service.service_template_id.next_template_id.off_duty:
+                new_service_data["employee_check"] = ''
+                new_service_data["equipment_check"] = ''
+                new_service_data["vehicle_check"] = ''
+
             new_service_nxt = super(ServiceAllocate, self).create(new_service_data)
             # save child reference
             new_service.next_service_id = new_service_nxt

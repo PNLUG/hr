@@ -4,6 +4,7 @@
 from odoo import fields, models, _
 from odoo.exceptions import UserError
 import json
+import datetime
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -37,10 +38,9 @@ class ServiceRule(models.Model):
         """
         Check if a resource has more than one shift assigned at same time
         @param  resource_type    string: type of the resource
-                                        [all, employee, vehicle, equipment]
+                                        [all | employee | vehicle | equipment]
         @param  obj_id          int:    id of the service; -1 to check all services
         """
-        # _TODO_ optimize
 
         rule_result = True
         rule_msg = ''
@@ -158,9 +158,12 @@ class ServiceRule(models.Model):
                                                                   service_double.id,
                                                                   vehicle.name))
 
-        if not rule_result:
+        if obj_id > 0 and not rule_result:
             raise UserError(_('Elements with overlapped shift:')+'\n'+rule_msg)
-        return rule_result
+        return {'message': _('Elements with overlapped shift:')+'\n'+rule_msg,
+                'result': rule_result,
+                'data': {}
+                }
 
     def rule_call(self, rule, param, srv_id, res_obj):
         """
@@ -173,7 +176,7 @@ class ServiceRule(models.Model):
         @return dict: rule elaboration
         """
 
-        # _TODO_ check if in rule_id
+        # _TODO_ check if rule is in rule_id
         rule_name = rule
         # Get the method from 'self'. Default to a lambda.
         method = getattr(self, rule_name, "_invalid_rule")
@@ -218,6 +221,52 @@ class ServiceRule(models.Model):
         """
         return {'message': 'Template', 'result': True, 'data': {}}
 
+    def hour_active_periond(self, parameters):
+        """
+        Calculate the total of active hours of a resource in a period of time.
+        Active hours are on no off-duty services.
+        @param  parameters  dict:
+            @param period dict:{'date_start':, 'date_stop': } period limit
+            @param srv_id  int: service to analyze
+            @param res_obj obj: resourse object to analyze
+
+        _todo_ manage on call shift
+        """
+        total_time = 0
+        date_start = parameters['period']['date_star'] \
+            if parameters['period'] and parameters['period']['date_star'] \
+            else datetime.datetime(datetime.datetime.now().year, 1, 1)
+        date_stop = parameters['period']['date_stop'] \
+            if parameters['period'] and parameters['period']['date_stop'] \
+            else datetime.datetime(datetime.datetime.now().year, 12, 31)
+
+        # extract employees of the service
+        for employee in (self.env['service.allocate']
+                         .search([('id', '=', parameters['srv_id'])]).employee_ids):
+            # get services where employee is assigned
+            # _todo_ manage real start/stop date
+            sql = ('SELECT service_allocate_id '
+                   'FROM service_allocate '
+                   'INNER JOIN hr_employee_service_allocate_rel '
+                   'on service_allocate.id=service_allocate_id '
+                   'WHERE '
+                   'scheduled_start >= %s '
+                   'and scheduled_stop <= %s '
+                   'and hr_employee_id = %s ')
+            self.env.cr.execute(sql, (date_start, date_stop, str(employee.id),))
+            # get duration of each service
+            # _todo_ manage real duration
+            for fetch_srv_id in self.env.cr.fetchall():
+                total_time += self.env['service.allocate'] \
+                                  .search([('id', 'in', fetch_srv_id)]) \
+                                  .service_template_id.duration
+        # _todo_
+        # raise UserError(_('Totale ore uomo %s') % (total_time))
+        return {'message': _('Totale ore uomo %s') % (total_time),
+                'result': True,
+                'data': {'hours': total_time}
+                }
+
     def hour_active_week(self, param, srv_id, res_obj):
         """
         Calculate the total of active hours of a resource in a week.
@@ -241,8 +290,12 @@ class ServiceRule(models.Model):
                 total_time += self.env['service.allocate'] \
                                   .search([('id', 'in', fetch_srv_id)]) \
                                   .service_template_id.duration
-        raise UserError(_('Totale ore uomo %s') % (total_time))
-        # return total_time
+        # _todo_
+        # raise UserError(_('Totale ore uomo setimana %s') % (total_time))
+        return {'message': _('Totale ore uomo settimana %s') % (total_time),
+                'result': True,
+                'data': {'hours': total_time}
+                }
 
     def hour_rest_week(self, param, srv_id, res_obj):
         """
@@ -274,7 +327,10 @@ class ServiceRule(models.Model):
                               .service_template_id.duration
         empl_name = self.env['hr.employee'].search([('id', '=', res_obj.id)]).name
         param_dict = json.loads(param)
-        # raise UserError
+        # _todo_ remove log
         _logger.info(_('Totale ore (mese) %s: %s [limite %s]')
                      % (empl_name, total_time, param_dict['h_max']))
-        # return total_time
+        return {'message': _('Total hours month: %s') % (total_time),
+                'result': True,
+                'data': {'hours': total_time}
+                }

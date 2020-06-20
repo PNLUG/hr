@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+
+    <!-- ############# SERVICE UTILITY #################### -->
+    <record model="ir.ui.view" id="service_utility_form">
+        <field name="name">Service Utility</field>
+        <field name="model">service.utility</field>
+        <field name="arch" type="xml">
+            <form string="Utility" edit="false" create="false">
+            <group>
+                <group>
+                    <button
+                        name="double_assign" colspan="2"
+                        string="Check double assignments"
+                        context = "{'resource_type':'all', 'srv_id': -1}"
+                        type="object" class="btn-primary"/>
+                    <br/>
+                    <br/>
+                    <button name="rule_call" colspan="2"
+                            string="Check hour-active-week"
+                            context = "{'rule_name':'hour_active_week',
+                                        'param':'{}',
+                                        'srv_id': 1,
+                                        'res_obj': False}"
+                            type="object" class="btn-primary"/>
+                    <br/>
+                    <br/>
+                    <button name="check_resource_rule" colspan="2"
+                            string="Check resources rules"
+                            context = "{'srv_id': 1}"
+                            type="object" class="btn-primary"/>
+                    <br/>
+                    <br/>
+                    <button name="hour_active_periond" colspan="2"
+                            string="Active hours in a period"
+                            context = "{'srv_id': 1}"
+                            type="object" class="btn-primary"/>
+                </group>
+                <group>
+                    <field name="result_message"/>
+                </group>
+            </group>
+            </form>
+        </field>
+     </record>
+
+</odoo>

@@ -130,17 +130,21 @@
         <field name="name">Service Calendar</field>
         <field name="model">service.allocate</field>
         <field name="arch" type="xml">
-            <!-- _TODO_ set background color -->
             <calendar
                 date_start="scheduled_start"
                 date_stop="scheduled_stop"
                 color="service_template_id"
                 mode="week"
                 >
+                <!--
+                _todo_ disabled waiting a better UI
                 <field name="parent_service_id"/>
                 <field name="id"/>
-                <field name="service_template_id"/>
                 <field name="next_service_id"/>
+                -->
+                <field name="service_template_id"/>
+                <field name="employee_check"/>
+                <field name="employee_names"/>
             </calendar>
         </field>
     </record>

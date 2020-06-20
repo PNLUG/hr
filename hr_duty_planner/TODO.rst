@@ -4,9 +4,9 @@ ToDo list
 **Models**
     * service template
         * DEV limit to 1 Container Service for off_duty type service
-        * DEV management of working/holiday calendar
+        * DEV management of working/holiday calendar on generation
     * service allocate
-        * DEV method to update all employees name list
+        * DEV activate _compute_emply_name method to update all employees name list
     * service rule
         * DEV complete rule method management
         * DEV management of errors: log/popup
@@ -16,13 +16,12 @@ ToDo list
 **Views**
     * service template form
         * FIX custom css loading
-        * FIX on deploy off_duty set to readonly
+        * FIX on deploy set off_duty to readonly
         * FIX layout
     * service allocate tree
         * FIX check rule button position
     * service allocate calendar
         * DEV text format
-        * DEV lock action on empty cells
         * DEV check/alert template expected fulfillment
         * FIX employee name display (newline separated)
         * FIX element dedicated color (web_calendar)
@@ -32,7 +31,6 @@ ToDo list
         * DEV check/alert template expected fulfillment
         * FIX element dedicated color (web_timeline)
     * service rule
-        * DEV add profile reference to employee, equipment, vehicle
         * FIX on deploy lock edit option
         * FIX optimize double_assign method
     * service profile

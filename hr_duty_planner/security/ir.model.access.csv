@@ -11,3 +11,4 @@ access_service_profile,access_service_profile,model_service_profile,base.group_u
 access_service_profileparameter,access_service_profileparameter,model_service_profileparameter,base.group_user,1,1,1,1
 access_service_rulefield,access_service_rulefield,model_service_rulefield,base.group_user,1,1,0,0
 access_service_aggregator,access_service_aggregator,model_service_aggregator,base.group_user,1,1,1,1
+access_service_utility,access_service_utility,model_service_utility,base.group_user,1,1,1,1

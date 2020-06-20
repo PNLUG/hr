@@ -13,6 +13,38 @@
         web_icon="hr_duty_planner,static/description/icon.png"
         sequence="110"/>
 
+    <!-- manage Services Allocated -->
+    <act_window
+        id = "act_service_allocate_cal"
+        name = "Services"
+        res_model = "service.allocate"
+        view_mode = "calendar,timeline,tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_allocate_cal"
+        name = "Services"
+        parent = "menu_hr_duty_planner"
+        sequence = "100"
+        action = "act_service_allocate_cal"
+        />
+
+    <!-- manage Utility -->
+    <act_window
+        id = "act_utility"
+        name = "Utility"
+        res_model = "service.utility"
+        view_mode = "form"
+        />
+
+    <menuitem
+        id = "menu_utility"
+        name = "Utility"
+        parent = "menu_hr_duty_planner"
+        sequence = "115"
+        action = "act_utility"
+        />
+
     <!-- manage Template -->
     <menuitem
         id = "menu_template"
@@ -235,20 +267,6 @@
         action = "act_expected_vhcl_category"
         />
 
-    <!-- manage Services Allocated -->
-    <act_window
-        id = "act_service_allocate_cal"
-        name = "Services"
-        res_model = "service.allocate"
-        view_mode = "calendar,timeline,tree,form"
-        />
 
-    <menuitem
-        id = "menu_service_allocate_cal"
-        name = "Services"
-        parent = "menu_hr_duty_planner"
-        sequence = "100"
-        action = "act_service_allocate_cal"
-        />
 
 </odoo>

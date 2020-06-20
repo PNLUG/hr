@@ -43,6 +43,7 @@
         'views/service_container_view.xml',
         'views/service_expected_view.xml',
         'views/service_template_view.xml',
+        'views/service_utility_view.xml',
         'views/employee_profile.xml',
         'views/vehicle_profile.xml',
         'views/equipment_profile.xml',
