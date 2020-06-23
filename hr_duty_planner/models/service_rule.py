@@ -18,7 +18,7 @@ class ServiceRule(models.Model):
 
     # model
     _name = 'service.rule'
-    _description = 'Rules to manage Services'
+    _description = 'Rules to manage Service resources'
 
     # fields
     # method of the rule
@@ -37,13 +37,20 @@ class ServiceRule(models.Model):
     def double_assign(self, resource_type, obj_id):
         """
         Check if a resource has more than one shift assigned at same time
-        @param  resource_type    string: type of the resource
+        @param  resource_type   string: type of the resource
                                         [all | employee | vehicle | equipment]
         @param  obj_id          int:    id of the service; -1 to check all services
         """
 
+        available_resource = ['all', 'employee', 'equipment', 'vehicle']
         rule_result = True
         rule_msg = ''
+
+        if not resource_type in available_resource:
+            return {'message': _('Resource not available: %s') % (resource_type),
+                    'result': False,
+                    'data': {}
+                    }
 
         # select service to check
         if obj_id > 0:
@@ -58,7 +65,7 @@ class ServiceRule(models.Model):
 
             if resource_type in ('employee', 'all') :
                 # if it is a next service uses the parent employees for check
-                # if lock is activated
+                # if lock employee is activated
                 lock = service.parent_service_id.service_template_id.next_lock_employee
                 employee_list = (
                     service.employee_ids
@@ -76,6 +83,7 @@ class ServiceRule(models.Model):
                                                 ])
                     for service_double in all_services:
                         # get employees of the parent if exists and template locks them
+                        # otherwise service's employees
                         employee_ref = (
                             service_double.parent_service_id.employee_ids
                             if service_double.parent_service_id and
@@ -110,6 +118,7 @@ class ServiceRule(models.Model):
                                                 ])
                     for service_double in all_services:
                         # get equipments of the parent if exists and template locks them
+                        # otherwise service's equipments
                         equipment_ref = (
                             service_double.parent_service_id.equipment_ids
                             if service_double.parent_service_id and
@@ -144,6 +153,7 @@ class ServiceRule(models.Model):
                                                 ])
                     for service_double in all_services:
                         # get vehicles of the parent if exists and template locks them
+                        # otherwise service's vehicles
                         vehicle_ref = (
                             service_double.parent_service_id.vehicle_ids
                             if service_double.parent_service_id and
@@ -165,37 +175,42 @@ class ServiceRule(models.Model):
                 'data': {}
                 }
 
-    def rule_call(self, rule, param, srv_id, res_obj):
+    def rule_call(self, rule_name, parameters, srv_id, res_obj):
         """
         Call requested rule
-        @param  rule    string: name of the rule
-        @param  param   json: name:value couples of parameters to pass to the method
-        @param  srv_id  int: service id
-        @param  res_obj obj: resource object
+        @param  rule_name   string: name of the rule
+        @param  parameters  json: 'name:value' couples of method's parameters
+        @param  srv_id      int: service id
+        @param  res_obj     obj: resource object
 
         @return dict: rule elaboration
         """
 
-        # _TODO_ check if rule is in rule_id
-        rule_name = rule
-        # Get the method from 'self'. Default to a lambda.
-        method = getattr(self, rule_name, "_invalid_rule")
-        # Call the method as we return it
-        if method == '_invalid_rule':
-            result = self._invalid_rule(rule_name)
+        # check if rule method is registered on model
+        if not self.env['service.rule'].search([('method', '=', rule_name)]):
+            return {'message': 'Rule method '+rule_name+' not registered.',
+                    'result': False,
+                    'data': {}
+                    }
+        
+        # Get the method from 'self' or invalid method.
+        method = getattr(self, rule_name, "_invalid_method")
+        # Call the method selected
+        if method == '_invalid_method':
+            result = self._invalid_method(rule_name)
         else:
-            result = method(param, srv_id, res_obj)
+            result = method(parameters, srv_id, res_obj)
         return result
 
-    def _invalid_rule(self, rule_name):
+    def _invalid_method(self, rule_name):
         """
         Management of method non defined
         """
         # _todo_ log/popup error management
         # raise UserError(_('Method %s not defined') % (rule_name))
-        _logger.error('ERROR _invalid_rule: '+rule_name)
+        _logger.error('ERROR invalid method: '+rule_name)
 
-        return {'message': 'Rule '+rule_name+' not defined',
+        return {'message': 'Method '+rule_name+' not defined.',
                 'result': False,
                 'data': {}
                 }
@@ -203,36 +218,43 @@ class ServiceRule(models.Model):
     ####################################################################################
     # Rules's method definition
 
-    def _rule_method_template(self, param, srv_id, res_obj):
+    def _rule_method_template(self, parameters, srv_id, res_obj):
         """
         Rules template definition
 
         For standard development each rule method must have all the same parameters
         defined: use false value in call if not used
 
-        @param  param   json: name:value couples of method's parameters
-        @param  srv_id  id: id of the service
-        @param  res_obj obj: resource object
+        @param  parameters  json: 'name:value' couples of method's parameters
+        @param  srv_id      id: id of the service
+        @param  res_obj     obj: resource object
 
         @return dictionary: {'message': string, 'result': boolean, 'data': dict}
             message: description of the elaboration result
             result: True/False based on the logic
             data: informations to be used by another method
         """
-        return {'message': 'Template', 'result': True, 'data': {}}
+        return {'message': 'Template',
+                'result': True,
+                'data': {}
+                }
 
     def hour_active_periond(self, parameters):
         """
         Calculate the total of active hours of a resource in a period of time.
         Active hours are on no off-duty services.
-        @param  parameters  dict:
-            @param period dict:{'date_start':, 'date_stop': } period limit
-            @param srv_id  int: service to analyze
+        @param  parameters  dict: parameters to pass to the method
+            @param period dict: {'date_start':, 'date_stop': } period limit
+            @param srv_id  int: service to analyze; -1 for all
             @param res_obj obj: resourse object to analyze
 
-        _todo_ manage on call shift
+        _todo_ manage on-call shift
         """
         total_time = 0
+        global_result = {'message': '',
+                         'result': True,
+                         'data': {},
+                         }
         date_start = parameters['period']['date_star'] \
             if parameters['period'] and parameters['period']['date_star'] \
             else datetime.datetime(datetime.datetime.now().year, 1, 1)
@@ -240,29 +262,176 @@ class ServiceRule(models.Model):
             if parameters['period'] and parameters['period']['date_stop'] \
             else datetime.datetime(datetime.datetime.now().year, 12, 31)
 
-        # extract employees of the service
-        for employee in (self.env['service.allocate']
-                         .search([('id', '=', parameters['srv_id'])]).employee_ids):
-            # get services where employee is assigned
-            # _todo_ manage real start/stop date
-            sql = ('SELECT service_allocate_id '
-                   'FROM service_allocate '
-                   'INNER JOIN hr_employee_service_allocate_rel '
-                   'on service_allocate.id=service_allocate_id '
-                   'WHERE '
-                   'scheduled_start >= %s '
-                   'and scheduled_stop <= %s '
-                   'and hr_employee_id = %s ')
-            self.env.cr.execute(sql, (date_start, date_stop, str(employee.id),))
-            # get duration of each service
-            # _todo_ manage real duration
-            for fetch_srv_id in self.env.cr.fetchall():
-                total_time += self.env['service.allocate'] \
-                                  .search([('id', 'in', fetch_srv_id)]) \
-                                  .service_template_id.duration
+        service_list = (self.env['service.allocate']
+                            .search([('id', '=', parameters['srv_id'])])
+                        if parameters['srv_id']>0
+                        else self.env['service.allocate'].search([])
+                        )
+        for service in service_list:
+            for employee in service.employee_ids:
+                result = self.hour_active_periond_employee(
+                            {'period' : {'date_start': date_start,
+                                        'date_stop': date_stop,
+                                        },
+                            'employee_id': employee.id,
+                            })
+                total_time += result['data']['hours']
+        global_result['message'] += (_('Employees hours %s') % (total_time)) + '\n'
+        global_result['data']['hour_empl'] = total_time
+
+        total_time = 0
+        for service in service_list:
+            for equipment in service.equipment_ids:
+                result = self.hour_active_periond_equipment(
+                            {'period' : {'date_start': date_start,
+                                        'date_stop': date_stop,
+                                        },
+                            'equipment_id': equipment.id,
+                            })
+                total_time += result['data']['hours']
+        global_result['message'] += (_('Equipments hours %s') % (total_time)) + '\n'
+        global_result['data']['hour_eqpm'] = total_time
+
+        total_time = 0
+        for service in service_list:
+            for vehicle in service.vehicle_ids:
+                result = self.hour_active_periond_vehicle(
+                            {'period' : {'date_start': date_start,
+                                        'date_stop': date_stop,
+                                        },
+                            'vehicle_id': vehicle.id,
+                            })
+                total_time += result['data']['hours']
+        global_result['message'] += (_('Vehicle hours %s') % (total_time)) + '\n'
+        global_result['data']['hour_vhcl'] = total_time
+
+        return {'message': global_result['message'],
+                'result': True,
+                'data': global_result['data'],
+                }
+
+    def hour_active_periond_employee(self, parameters):
+        """
+        Calculate the total of active hours of an employee in a period of time.
+        Active hours are on no off-duty services.
+        @param  parameters  dict: parameters to pass to the method
+            @param period       dict: {'date_start':, 'date_stop': } period limit
+            @param employee_id  int: employee to analyze
+
+        _todo_ 
+            manage on-call shift
+            manage real start/stop date
+        """
+        total_time = 0
+        # get services where employee is assigned
+        sql = ('SELECT service_allocate_id '
+               'FROM service_allocate '
+               'INNER JOIN hr_employee_service_allocate_rel '
+               'on service_allocate.id=service_allocate_id '
+               'WHERE '
+               'scheduled_start >= %s '
+               'and scheduled_stop <= %s '
+               'and hr_employee_id = %s '
+               )
+        self.env.cr.execute(sql,
+                            (parameters['period']['date_start'],
+                             parameters['period']['date_stop'],
+                             str(parameters['employee_id']),
+                             )
+                            )
+
+        # get duration of each service
+        for fetch_srv_id in self.env.cr.fetchall():
+            total_time += self.env['service.allocate'] \
+                                .search([('id', 'in', fetch_srv_id)]) \
+                                .service_template_id.duration
         # _todo_
-        # raise UserError(_('Totale ore uomo %s') % (total_time))
-        return {'message': _('Totale ore uomo %s') % (total_time),
+        # raise UserError(_('Totale ore %s') % (total_time))
+        return {'message': _('Totale ore: %s') % (total_time),
+                'result': True,
+                'data': {'hours': total_time}
+                }
+
+    def hour_active_periond_equipment(self, parameters):
+        """
+        Calculate the total of active hours of an equipment in a period of time.
+        Active hours are on no off-duty services.
+        @param  parameters  dict: parameters to pass to the method
+            @param period       dict: {'date_start':, 'date_stop': } period limit
+            @param equipment_id int: equipment to analyze
+
+        _todo_ 
+            manage on-call shift
+            manage real start/stop date
+        """
+        total_time = 0
+        # get services where equipment is assigned
+        sql = ('SELECT service_allocate_id '
+               'FROM service_allocate '
+               'INNER JOIN maintenance_equipment_service_allocate_rel '
+               'on service_allocate.id=service_allocate_id '
+               'WHERE '
+               'scheduled_start >= %s '
+               'and scheduled_stop <= %s '
+               'and maintenance_equipment_id = %s '
+               )
+        self.env.cr.execute(sql,
+                            (parameters['period']['date_start'],
+                             parameters['period']['date_stop'],
+                             str(parameters['equipment_id']),
+                             )
+                            )
+
+        # get duration of each service
+        for fetch_srv_id in self.env.cr.fetchall():
+            total_time += self.env['service.allocate'] \
+                                .search([('id', 'in', fetch_srv_id)]) \
+                                .service_template_id.duration
+        # _todo_
+        # raise UserError(_('Totale ore %s') % (total_time))
+        return {'message': _('Totale ore: %s') % (total_time),
+                'result': True,
+                'data': {'hours': total_time}
+                }
+
+    def hour_active_periond_vehicle(self, parameters):
+        """
+        Calculate the total of active hours of an vehicle in a period of time.
+        Active hours are on no off-duty services.
+        @param  parameters  dict: parameters to pass to the method
+            @param period       dict: {'date_start':, 'date_stop': } period limit
+            @param vehicle_id   int: vehicle to analyze
+
+        _todo_ 
+            manage on-call shift
+            manage real start/stop date
+        """
+        total_time = 0
+        # get services where vehicle is assigned
+        sql = ('SELECT service_allocate_id '
+               'FROM service_allocate '
+               'INNER JOIN fleet_vehicle_service_allocate_rel '
+               'on service_allocate.id=service_allocate_id '
+               'WHERE '
+               'scheduled_start >= %s '
+               'and scheduled_stop <= %s '
+               'and fleet_vehicle_id = %s '
+               )
+        self.env.cr.execute(sql,
+                            (parameters['period']['date_start'],
+                             parameters['period']['date_stop'],
+                             str(parameters['vehicle_id']),
+                             )
+                            )
+
+        # get duration of each service
+        for fetch_srv_id in self.env.cr.fetchall():
+            total_time += self.env['service.allocate'] \
+                                .search([('id', 'in', fetch_srv_id)]) \
+                                .service_template_id.duration
+        # _todo_
+        # raise UserError(_('Totale ore %s') % (total_time))
+        return {'message': _('Totale ore: %s') % (total_time),
                 'result': True,
                 'data': {'hours': total_time}
                 }
@@ -303,7 +472,7 @@ class ServiceRule(models.Model):
         By active hours is meant not work or on call
         _todo_ define/set active shift
         """
-        return {'message': 'To DO', 'result': True, 'data': {'hour': 8}}
+        return {'message': 'hour_rest_week To DO', 'result': True, 'data': {'hour': 8}}
 
     def hour_active_month(self, param, srv_id, res_obj):
         """

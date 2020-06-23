@@ -9,32 +9,32 @@
 
         <!-- service profile parameter -->
         <record id="service_profileparameter_1" model="service.profileparameter">
-            <field name="rule_id">1</field>
+            <field name="rule_id" eval="ref('service_rule_1')"/>
             <field name="rule_field_id">1</field>
-            <field name="field_value">10</field>
-        </record>
-        <record id="service_profileparameter_5" model="service.profileparameter">
-            <field name="rule_id">1</field>
-            <field name="rule_field_id">2</field>
-            <field name="field_value">5</field>
+            <field name="field_value">12</field>
         </record>
         <record id="service_profileparameter_2" model="service.profileparameter">
-            <field name="rule_id">1</field>
+            <field name="rule_id" eval="ref('service_rule_1')"/>
             <field name="rule_field_id">1</field>
-            <field name="field_value">8</field>
+            <field name="field_value">6</field>
         </record>
-        <record id="service_profileparameter_3" model="service.profileparameter">
-            <field name="rule_id">3</field>
-            <field name="rule_field_id">1</field>
-            <field name="field_value">40</field>
+        <record id="service_profileparameter_5" model="service.profileparameter">
+            <field name="rule_id" eval="ref('service_rule_2')"/>
+            <field name="rule_field_id">2</field>
+            <field name="field_value">48</field>
         </record>
         <record id="service_profileparameter_4" model="service.profileparameter">
-            <field name="rule_id">3</field>
+            <field name="rule_id" eval="ref('service_rule_3')"/>
             <field name="rule_field_id">1</field>
-            <field name="field_value">16</field>
+            <field name="field_value">148</field>
+        </record>
+        <record id="service_profileparameter_3" model="service.profileparameter">
+            <field name="rule_id" eval="ref('service_rule_3')"/>
+            <field name="rule_field_id">1</field>
+            <field name="field_value">120</field>
         </record>
         <record id="service_profileparameter_6" model="service.profileparameter">
-            <field name="rule_id">5</field>
+            <field name="rule_id" eval="ref('service_rule_5')"/>
             <field name="rule_field_id">3</field>
             <field name="field_value">24</field>
         </record>
@@ -50,23 +50,23 @@
         <record id="service_profile_2" model="service.profile">
             <field name="name">Nurse trainee</field>
             <field name="parameter_ids" 
-                eval="[(6, 0,[ref('service_profileparameter_1'),
+                eval="[(6, 0,[ref('service_profileparameter_2'),
                               ref('service_profileparameter_3')])]"/>
         </record>
         <record id="service_profile_3" model="service.profile">
             <field name="name">Driver professional</field>
             <field name="parameter_ids" 
-                eval="[(4, ref('service_profileparameter_2'))]" />
+                eval="[(4, ref('service_profileparameter_1'))]"/>
         </record>
         <record id="service_profile_4" model="service.profile">
             <field name="name">Controller</field>
             <field name="parameter_ids" 
-                eval="[(4, ref('service_profileparameter_4'))]" />
+                eval="[(4, ref('service_profileparameter_4'))]"/>
         </record>
         <record id="service_profile_5" model="service.profile">
             <field name="name">Vehicle/Equipment check</field>
             <field name="parameter_ids" 
-                eval="[(4, ref('service_profileparameter_6'))]" />
+                eval="[(4, ref('service_profileparameter_6'))]"/>
         </record>
 
         <!-- hr employee -->

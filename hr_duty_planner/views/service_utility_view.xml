@@ -23,7 +23,7 @@
                     <button name="rule_call" colspan="2"
                             string="Check hour-active-week"
                             context = "{'rule_name':'hour_active_week',
-                                        'param':'{}',
+                                        'parameters':'{}',
                                         'srv_id': 1,
                                         'res_obj': False}"
                             type="object" class="btn-primary"/>
@@ -31,13 +31,13 @@
                     <br/>
                     <button name="check_resource_rule" colspan="2"
                             string="Check resources rules"
-                            context = "{'srv_id': 1}"
+                            context = "{'srv_id': -1}"
                             type="object" class="btn-primary"/>
                     <br/>
                     <br/>
                     <button name="hour_active_periond" colspan="2"
-                            string="Active hours in a period"
-                            context = "{'srv_id': 1}"
+                            string="Active hours in a period (this year)"
+                            context = "{'srv_id': -1}"
                             type="object" class="btn-primary"/>
                 </group>
                 <group>

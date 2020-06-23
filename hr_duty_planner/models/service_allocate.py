@@ -139,6 +139,23 @@ class ServiceAllocate(models.Model):
                 service.employee_names += employee.name + ', \n'
         return
 
+    # utility to filter container services to template's container services
+    @api.onchange('service_template_id')
+    def _get_template_container(self):
+        """
+        Extract list of container services associated to the template service
+        """
+        container_services = []
+        # reset value to avoid errors
+        self.service_container_id = [(5)]
+        for glob_srv in self.service_template_id.service_container_ids:
+            container_services.append(glob_srv.id)
+
+        return {'domain': {'service_container_id': [('id', 'in', container_services)]}}
+
+    # ##################################################################################
+    # CHECK RESOURCE REQUEST
+
     @api.onchange('service_template_id')
     def check_skill_request(self):
         """
@@ -148,9 +165,10 @@ class ServiceAllocate(models.Model):
             # get requested skills by template
             skill_request = service.service_template_id.exp_empl_skill_ids
             # set error message
-            self.employee_check = ''
-                                  if skill_request or service.off_duty \
-                                  else 'Not checked'
+            self.employee_check = (''
+                                   if skill_request or service.off_duty
+                                   else 'Not checked'
+                                   )
             # for each request counts available employees
             for request in skill_request:
                 available_qty = 0
@@ -173,8 +191,13 @@ class ServiceAllocate(models.Model):
                                             )
         if self.employee_check == '':
             self.employee_check = 'All covered'
+
         self._compute_emply_name()
-        return
+
+        return {'message': self.employee_check,
+                'result': self.employee_check == 'All covered',
+                'data': {}
+                }
 
     @api.onchange('service_template_id')
     def check_equipment_request(self):
@@ -185,9 +208,10 @@ class ServiceAllocate(models.Model):
             # get requested categoryies by template
             category_request = service.service_template_id.exp_eqpmt_category_ids
             # set error message
-            self.equipment_check = ''
-                                   if category_request or service.off_duty \
-                                   else 'Not checked'
+            self.equipment_check = (''
+                                    if category_request or service.off_duty
+                                    else 'Not checked'
+                                    )
             # for each request counts available categories
             for request in category_request:
                 available_qty = 0
@@ -210,7 +234,11 @@ class ServiceAllocate(models.Model):
                                              )
         if self.equipment_check == '':
             self.equipment_check = 'All covered'
-        return
+
+        return {'message': self.equipment_check,
+                'result': self.equipment_check == 'All covered',
+                'data': {}
+                }
 
     @api.onchange('service_template_id')
     def check_vehicle_request(self):
@@ -221,9 +249,10 @@ class ServiceAllocate(models.Model):
             # get requested categoryies by template
             vehicle_request = service.service_template_id.exp_vhcl_type_ids
             # set error message
-            self.vehicle_check = ''
-                                 if vehicle_request or service.off_duty \
-                                 else 'Not checked'
+            self.vehicle_check = (''
+                                  if vehicle_request or service.off_duty
+                                  else 'Not checked'
+                                  )
             # for each request counts available types
             for request in vehicle_request:
                 available_qty = 0
@@ -246,27 +275,21 @@ class ServiceAllocate(models.Model):
                                            )
         if self.vehicle_check == '':
             self.vehicle_check = 'All covered'
-        return
 
-    # utility to filter container services to template's container services
-    @api.onchange('service_template_id')
-    def _get_template_container(self):
-        """
-        Extract list of container services associated to the template service
-        """
-        container_services = []
-        # reset value to avoid errors
-        self.service_container_id = [(5)]
-        for glob_srv in self.service_template_id.service_container_ids:
-            container_services.append(glob_srv.id)
+        return {'message': self.vehicle_check,
+                'result': self.vehicle_check == 'All covered',
+                'data': {}
+                }
 
-        return {'domain': {'service_container_id': [('id', 'in', container_services)]}}
+    # ##################################################################################
+    # CHECK RESOURCE RULES
 
     def double_assign(self, parameters):
         """
         Call rule for double assignment check
-        @param resource_type    string: all | employee | equipment | vehicle
-        @param srv_id           int: service id
+        @param parameters   dict
+            @param resource_type    string: all | employee | equipment | vehicle
+            @param srv_id           int: service id
         """
         result = self.env['service.rule'].double_assign(parameters['resource_type'],
                                                         parameters['srv_id'])
@@ -275,14 +298,14 @@ class ServiceAllocate(models.Model):
     def rule_call(self, parameters):
         """
         Call a rule method
-        @param  parameter   dict: parameters to pass to the method
-                rule_name   string: name of the method
-                param       json: name:value couples with method parameters
-                srv_id      int: id of the service
-                res_obj     obj: resourse object to check with the roule
+        @param parameters   dict: parameters to pass to the method
+            @param  rule_name   string: name of the method
+            @param  param   json: 'name:value' couples with method parameters
+            @param  srv_id  int: id of the service
+            @param  res_obj obj: resourse object to check with the rule
         """
         result = self.env['service.rule'].rule_call(parameters['rule_name'],
-                                                    parameters['param'],
+                                                    parameters['parameters'],
                                                     parameters['srv_id'],
                                                     parameters['res_obj'],
                                                     )
@@ -291,90 +314,188 @@ class ServiceAllocate(models.Model):
     def check_resource_rule(self, parameters):
         """
         Check rules for each resource associated to the service
-        @param srv_id   int: id of the service
-
-        _todo_
-            disassemble method per resource type;
-            pass resource id
-            pass period limits
+        @param parameters       dict: parameters to pass to the method
+            @param srv_id       int: id of the service; -1 for all
+            @param res_obj      obj: resourse object to check with the rule
+            @param date_star    date: period initial date
+            @param date_stop    date: perio final date
         """
 
-        # get employee of the service
-        for employee in self.env['service.allocate'] \
-                            .search([('id', '=', parameters['srv_id'])]).employee_ids:
-            # memorize a dictionary of rules and fields
-            rule_method = {}
-            # get rules of the profile associated to the employee
-            for rule in employee.profile_id.parameter_ids:
-                # create rule element if not exists
-                try:
-                    rule_method[rule.rule_id.method]
-                except:
-                    rule_method[rule.rule_id.method] = {}
-                # save rule/field value
-                rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
-                    rule.field_value
-            # _todo_ remove log
-            _logger.info(employee.name+' '+json.dumps(rule_method))
-            # execute the memorized rules
-            employee_result = {'message': '',
-                               'result': True,
-                               'data': {},
-                               }
-            for method in rule_method:
-                result = self.rule_call({
-                                'rule_name': method,
-                                'param': json.dumps(rule_method[method]),
-                                'srv_id': employee.id,
-                                'res_obj': employee,
-                                })
-                result['data'].update(employee_result['data'])
-                employee_result = {
-                    'message': employee_result['message'] +
-                               employee.name + ' ' + result['message'] + '\n',
-                    'result': True * result['result'],
-                    'data': result['data'],
-                    }
+        return_employee = self.check_employee_rule(parameters)
+        return_equipment = self.check_equipment_rule(parameters)
+        return_vehicle = self.check_vehicle_rule(parameters)
 
-        # get vehicle of the service
-        for vehicle in self.env['service.allocate'] \
-                           .search([('id', '=', parameters['srv_id'])]).vehicle_ids:
-            # memorize a dictionary of rules and fields
-            rule_method = {}
-            # get rules of the profile associated to the vehicle
-            for rule in vehicle.profile_id.parameter_ids:
-                # create rule element if not exists
-                try:
-                    rule_method[rule.rule_id.method]
-                except:
-                    rule_method[rule.rule_id.method] = {}
-                # save rule/field value
-                rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
-                    rule.field_value
-            # _todo_ activate check logic on method
-            _logger.info(vehicle.name+' '+json.dumps(rule_method))
+        return {
+                'employee': return_employee,
+                'equipment': return_equipment,
+                'vehicle': return_vehicle,
+                }
 
-        # get equipment of the service
-        for equipment in self.env['service.allocate'] \
-                             .search([('id', '=', parameters['srv_id'])]).equipment_ids:
-            # memorize a dictionary of rules and fields
-            rule_method = {}
-            # get rules of the profile associated to the equipment
-            for rule in equipment.profile_id.parameter_ids:
-                # create rule element if not exists
-                try:
-                    rule_method[rule.rule_id.method]
-                except:
-                    rule_method[rule.rule_id.method] = {}
-                # save rule/field value
-                rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
-                    rule.field_value
-            # _todo_ activate check logic on method
-            _logger.info(equipment.name+' '+json.dumps(rule_method))
-
-        # _todo_ complete with equipment vehicle
+    def check_employee_rule(self, parameters):
+        """
+        Check rules for each resource associated to the service
+        @param parameters       dict: parameters to pass to the method
+            @param srv_id       int: id of the service
+            @param res_obj      obj: resourse object to check with the rule
+            @param date_star    date: period initial date
+            @param date_stop    date: perio final date
+        _todo_
+            check period limits
+        """
+        employee_result = {'message': '',
+                           'result': True,
+                           'data': {},
+                           }
+        service_list = (self.env['service.allocate']
+                            .search([('id', '=', parameters['srv_id'])])
+                        if parameters['srv_id']>0
+                        else self.env['service.allocate'].search([])
+                        )
+        for service in service_list:
+            # get employee of the service
+            for employee in service.employee_ids:
+                # memorize a dictionary of rules and fields
+                rule_method = {}
+                # get rules of the profile associated to the employee
+                for rule in employee.profile_id.parameter_ids:
+                    # create rule element if not exists
+                    try:
+                        rule_method[rule.rule_id.method]
+                    except:
+                        rule_method[rule.rule_id.method] = {}
+                    # save rule/field value
+                    rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
+                        rule.field_value
+                # _todo_ remove log
+                _logger.info(employee.name+' '+json.dumps(rule_method))
+                # execute the memorized rules
+                for method in rule_method:
+                    result = self.rule_call({
+                                    'rule_name': method,
+                                    'parameters': json.dumps(rule_method[method]),
+                                    'srv_id': employee.id,
+                                    'res_obj': employee,
+                                    })
+                    result['data'].update(employee_result['data'])
+                    employee_result = {
+                        'message': employee_result['message'] +
+                                employee.name + ': ' + result['message'] + '\n',
+                        'result': True * result['result'],
+                        'data': result['data'],
+                        }
         return employee_result
 
+    def check_vehicle_rule(self, parameters):
+        """
+        Check rules for each vehicle associated to the service
+        @param parameters       dict: parameters to pass to the method
+            @param srv_id       int: id of the service
+            @param res_obj      obj: resourse object to check with the rule
+            @param date_star    date: period initial date
+            @param date_stop    date: perio final date
+        _todo_
+            check period limits
+        """
+        vehicle_result = {'message': '',
+                          'result': True,
+                          'data': {},
+                          }
+        service_list = (self.env['service.allocate']
+                            .search([('id', '=', parameters['srv_id'])])
+                        if parameters['srv_id']>0
+                        else self.env['service.allocate'].search([])
+                        )
+        for service in service_list:
+            # get vehicle of the service
+            for vehicle in service.vehicle_ids:
+                # memorize a dictionary of rules and fields
+                rule_method = {}
+                # get rules of the profile associated to the vehicle
+                for rule in vehicle.profile_id.parameter_ids:
+                    # create rule element if not exists
+                    try:
+                        rule_method[rule.rule_id.method]
+                    except:
+                        rule_method[rule.rule_id.method] = {}
+                    # save rule/field value
+                    rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
+                        rule.field_value
+                # _todo_ activate check logic on method
+                _logger.info(vehicle.name+' '+json.dumps(rule_method))
+                # execute the memorized rules
+                for method in rule_method:
+                    result = self.rule_call({
+                                    'rule_name': method,
+                                    'parameters': json.dumps(rule_method[method]),
+                                    'srv_id': vehicle.id,
+                                    'res_obj': vehicle,
+                                    })
+                    result['data'].update(vehicle_result['data'])
+                    vehicle_result = {
+                        'message': vehicle_result['message'] +
+                                vehicle.name + ': ' + result['message'] + '\n',
+                        'result': True * result['result'],
+                        'data': result['data'],
+                        }
+        return vehicle_result
+
+    def check_equipment_rule(self, parameters):
+        """
+        Check rules for each equipment associated to the service
+        @param parameters       dict: parameters to pass to the method
+            @param srv_id       int: id of the service
+            @param res_obj      obj: resourse object to check with the rule
+            @param date_star    date: period initial date
+            @param date_stop    date: perio final date
+        _todo_
+            check period limits
+        """
+        equipment_result = {'message': '',
+                            'result': True,
+                            'data': {},
+                            }
+        service_list = (self.env['service.allocate']
+                            .search([('id', '=', parameters['srv_id'])])
+                        if parameters['srv_id']>0
+                        else self.env['service.allocate'].search([])
+                        )
+        for service in service_list:
+            # get equipment of the service
+            for equipment in service.equipment_ids:
+                # memorize a dictionary of rules and fields
+                rule_method = {}
+                # get rules of the profile associated to the equipment
+                for rule in equipment.profile_id.parameter_ids:
+                    # create rule element if not exists
+                    try:
+                        rule_method[rule.rule_id.method]
+                    except:
+                        rule_method[rule.rule_id.method] = {}
+                    # save rule/field value
+                    rule_method[rule.rule_id.method][rule.rule_field_id.field_name] = \
+                        rule.field_value
+                # _todo_ activate check logic on method
+                _logger.info(equipment.name+' '+json.dumps(rule_method))
+                # execute the memorized rules
+                for method in rule_method:
+                    result = self.rule_call({
+                                    'rule_name': method,
+                                    'parameters': json.dumps(rule_method[method]),
+                                    'srv_id': equipment.id,
+                                    'res_obj': equipment,
+                                    })
+                    result['data'].update(equipment_result['data'])
+                    equipment_result = {
+                        'message': equipment_result['message'] +
+                                equipment.name + ': ' + result['message'] + '\n',
+                        'result': True * result['result'],
+                        'data': result['data'],
+                        }
+        return equipment_result
+
+    # ##################################################################################
+    # OVERRIDE ORIGINAL METHOD
+    
     @api.model
     def create(self, values):
         """

@@ -6,35 +6,35 @@
 <odoo>
     <data noupdate="1">
         <!-- service.rule -->
-        <record model="service.rule" id="1">
+        <record model="service.rule" id="service_rule_1">
             <field name="method">hour_active_day</field>
             <field name="description">Hours active per day</field>
         </record>
-        <record model="service.rule" id="2">
+        <record model="service.rule" id="service_rule_2">
             <field name="method">hour_active_week</field>
             <field name="description">Hours active per week</field>
         </record>
-        <record model="service.rule" id="3">
+        <record model="service.rule" id="service_rule_3">
             <field name="method">hour_active_month</field>
             <field name="description">Hours active per month</field>
         </record>
-        <record model="service.rule" id="4">
+        <record model="service.rule" id="service_rule_4">
             <field name="method">hour_rest_day</field>
             <field name="description">Rest hours per day</field>
         </record>
-        <record model="service.rule" id="5">
+        <record model="service.rule" id="service_rule_5">
             <field name="method">hour_rest_week</field>
             <field name="description">Rest hours per week</field>
         </record>
-        <record model="service.rule" id="6">
+        <record model="service.rule" id="service_rule_6">
             <field name="method">hour_rest_month</field>
             <field name="description">Rest hours per month</field>
         </record>
-        <record model="service.rule" id="7">
+        <record model="service.rule" id="service_rule_7">
             <field name="method">end_of_shift_rest</field>
             <field name="description">End of shift rest</field>
         </record>
-        <record model="service.rule" id="8">
+        <record model="service.rule" id="service_rule_8">
             <field name="method">end_of_night_shift_rest</field>
             <field name="description">End of night shift rest</field>
         </record>

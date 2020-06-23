@@ -52,7 +52,9 @@ class ServiceUtility(models.Model):
         @param srv_id   int: id of the service
         """
         result = self.env['service.allocate'].check_resource_rule(parameters)
-        self.result_message = result['message']
+        self.result_message = result['employee']['message'] + \
+                              result['equipment']['message'] + \
+                              result['vehicle']['message']
         return result
 
     def hour_active_periond(self, parameters):

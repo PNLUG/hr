@@ -6,32 +6,41 @@
 <odoo>
     <data noupdate="0">
         <!-- service.rulefields -->
-        <!-- rule hour_active_day / id=1 -->
+        <!-- rule hour_active_day / id=service_rule_1 -->
         <record model="service.rulefield" id="1">
-            <field name="rule_id">1</field>
+            <field name="rule_id" eval="ref('service_rule_1')"/>
             <field name="field_name">h_max</field>
             <field name="field_desc">Maximum work hours per day</field>
             <field name="field_default">12</field>
             <field name="field_mandatory">True</field>
         </record>
+        <!-- rule hour_active_week / id=service_rule_2 -->
         <record model="service.rulefield" id="2">
-            <field name="rule_id">1</field>
-            <field name="field_name">h_min</field>
-            <field name="field_desc">Minimum work hours per day</field>
-            <field name="field_default">4</field>
+            <field name="rule_id" eval="ref('service_rule_2')"/>
+            <field name="field_name">h_max</field>
+            <field name="field_desc">Maximum work hours per week</field>
+            <field name="field_default">36</field>
             <field name="field_mandatory">True</field>
         </record>
-        <!-- rule hour_rest_week / id=5 -->
+        <!-- rule hour_active_month / id=service_rule_3 -->
         <record model="service.rulefield" id="3">
-            <field name="rule_id">5</field>
+            <field name="rule_id" eval="ref('service_rule_3')"/>
+            <field name="field_name">h_max</field>
+            <field name="field_desc">Maximum work hours per month</field>
+            <field name="field_default">144</field>
+            <field name="field_mandatory">True</field>
+        </record>
+        <!-- rule hour_rest_week / id=service_rule_5 -->
+        <record model="service.rulefield" id="4">
+            <field name="rule_id" eval="ref('service_rule_5')"/>
             <field name="field_name">h_min</field>
             <field name="field_desc">Minimum rest hours per week</field>
             <field name="field_default">24</field>
             <field name="field_mandatory">True</field>
         </record>
-        <!-- rule end_of_shift_rest / id=7 -->
-        <record model="service.rulefield" id="4">
-            <field name="rule_id">7</field>
+        <!-- rule end_of_shift_rest / id=service_rule_7 -->
+        <record model="service.rulefield" id="5">
+            <field name="rule_id" eval="ref('service_rule_7')"/>
             <field name="field_name">is_request</field>
             <field name="field_desc">Reguire a rest shift after a work shift</field>
             <field name="field_default">True</field>
