@@ -1,0 +1,52 @@
+ToDo list
+
+
+**Models**
+    * service template
+        * DEV management of working/holiday calendar on generation
+    * service allocate
+        * DEV activate _compute_emply_name method to update all employees name list
+    * service rule
+        * DEV complete rule method management
+        * DEV management of errors: log/popup
+    * calendar
+        * DEV check module
+
+**Views**
+    * service template form
+        * FIX custom css loading
+        * FIX on deploy set off_duty to readonly
+        * FIX layout
+    * service allocate tree
+        * FIX check rule button position
+    * service allocate form
+        * DEV filter resources on availability
+    * service allocate calendar
+        * DEV text format
+        * DEV check/alert template expected fulfillment
+        * FIX employee name display (newline separated)
+        * FIX element dedicated color (web_calendar)
+    * service allocate timeline
+        * DEV try add another level of group (ie. locality)
+        * DEV check UIX
+        * DEV check/alert template expected fulfillment
+        * FIX element dedicated color (web_timeline)
+    * service rule
+        * FIX on deploy lock edit option
+        * FIX optimize double_assign method
+    * service profile
+        * FIX filter available fields for selected rule !!!
+        * DEV create check for rule-field assignment (association, mandatory)
+    * reporting
+        * DEV basic report
+
+**Functional**
+    * service
+        * DEV define how to manage real start/end time
+
+**Security**
+    * FIX model authorizations
+
+
+**Readme**
+oca-gen-addon-readme --repo-name hr --branch 12.0 --addon-dir ~/odoo-dev/odoo12/OCA/addons-custom-sp/hr_duty_planner/

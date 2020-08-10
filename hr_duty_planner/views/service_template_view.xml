@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+
+    <!-- ############# SERVICE TEMPLATE #################### -->
+    <record model="ir.ui.view" id="service_template_tree">
+        <field name="name">Service Template</field>
+        <field name="model">service.template</field>
+        <field name="arch" type="xml">
+            <tree string="Templates">
+                <field name="name"/>
+                <field name="off_duty"/>
+                <field name="base_color"
+                    widget="color" options="{'readonly_mode': 'color'}"/>
+                <field name="service_container_ids" widget="many2many_tags"/>
+                <field name="duration"/>
+                <field name="duration_uom_id"/>
+                <field name="exp_empl_skill_ids" widget="many2many_tags"/>
+                <field name="exp_eqpmt_category_ids" widget="many2many_tags"/>
+                <field name="exp_vhcl_type_ids" widget="many2many_tags"/>
+                <field name="next_template_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="service_template_form">
+        <field name="name">Service Template</field>
+        <field name="model">service.template</field>
+        <field name="arch" type="xml">
+            <form string="Service Template">
+                <group>
+                    <group>
+                        <group>
+                            <h1><field name="name"/></h1>
+                        </group>
+
+                        <group>
+                            <button name="%(hr_duty_planner.service_generate_wizard)d"
+                                attrs="{'invisible':[('off_duty','!=',False)]}"
+                                string="Generate Services" type="action"
+                                context="{'default_service_template_id': id}"
+                                class="oe_highlight"/>
+                        </group>
+                    </group>
+                </group>
+
+                <group>
+                    <group>
+                            <!-- _TODO_ readonly=1 -->
+                            <field name="off_duty" readonly="0"/>
+                            <br/>
+                            <!-- <label string="_TODO_ SOLO LETTURA"/> -->
+                            <field name="service_container_ids"/>
+                            <field name="duration"/>
+                            <field name="duration_uom_id"/>
+                            <field name="base_color" widget="color"
+                                   options="{'readonly_mode': 'color'}"/>
+                            <br/>
+                            <field name="next_template_id"
+                                   attrs="{'invisible':[('off_duty','!=',False)]}"
+                                   domain="[('id', '!=', id)]"/>
+                            <field name="next_lock_employee"
+                                   attrs="{'invisible':[('off_duty','!=',False)]}"/>
+                            <field name="next_lock_equipment"
+                                   attrs="{'invisible':[('off_duty','!=',False)]}"/>
+                            <field name="next_lock_vehicle"
+                                   attrs="{'invisible':[('off_duty','!=',False)]}"/>
+                    </group>
+
+                    <group class="sp_td_label"
+                        attrs="{'invisible':[('off_duty','!=',False)]}">
+                        <h1 colspan="2">Requested Features</h1>
+                         <field name="exp_empl_skill_ids" widget="one2many_list" >
+                            <tree string="Lines" editable="bottom">
+                                <field name="skill_id"/>
+                                <field name="min_qty"/>
+                                <field name="max_qty"/>
+                            </tree>
+                        </field>
+                        <field name="exp_eqpmt_category_ids" widget="one2many_list" >
+                            <tree string="Lines" editable="bottom">
+                                <field name="eqp_cat_id"/>
+                                <field name="min_qty"/>
+                                <field name="max_qty"/>
+                            </tree>
+                        </field>
+                        <field name="exp_vhcl_type_ids" widget="one2many_list" >
+                            <tree string="Lines" editable="bottom">
+                                <field name="vehicle_category_id"/>
+                                <field name="min_qty"/>
+                                <field name="max_qty"/>
+                            </tree>
+                        </field>
+                    </group>
+
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

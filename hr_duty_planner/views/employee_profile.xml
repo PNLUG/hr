@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+    <!-- Inherit employee form view to add new field profile service -->
+    <record model="ir.ui.view" id="employee_form_inherit_profile">
+        <field name="name">hr.employee</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='department_id']" position="after">
+                <field name="profile_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+    <!-- Define views for plan and levels -->
+    
+    <!-- ############# SERVICE CONTAINER #################### -->
+    <record model="ir.ui.view" id="service_container_tree">
+        <field name="name">Container Service</field>
+        <field name="model">service.container</field>
+        <field name="arch" type="xml">
+            <tree string="Templates">
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+     </record>
+
+</odoo>

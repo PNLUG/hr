@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+
+    <!-- ############# SERVICE ALLOCATED #################### -->
+    <record model="ir.ui.view" id="service_allocate_tree">
+        <field name="name">Service Allocated</field>
+        <field name="model">service.allocate</field>
+        <field name="arch" type="xml">
+            <tree string="Allocated">
+                <!-- _TODO_ _FIX_ 
+                    direct call to service.rule.double_assign on the button 
+                    move to view header
+                    -->
+                <button name="double_assign"
+                        string="Check rules"
+                        context = "{'resource_type':'all', 'srv_id': -1}"
+                        type="object" class="btn-primary"/>
+                <field name="id"/>
+                <field name="service_container_id"/>
+                <field name="service_template_id"/>
+                <field name="service_color"
+                    widget="color" options="{'readonly_mode': 'color'}"/>
+                <field name="state"/>
+                <field name="scheduled_start"/>
+                <field name="scheduled_stop"/>
+                <field name="start_real"/>
+                <field name="stop_real"/>
+                <field name="employee_ids" widget="many2many_tags"/>
+                <field name="vehicle_ids" widget="many2many_tags"/>
+                <field name="equipment_ids" widget="many2many_tags"/>
+                <field name="generation_id"/>
+            </tree>
+        </field>
+     </record>
+
+    <record model="ir.ui.view" id="service_allocate_form">
+        <field name="name">Service Allocated</field>
+        <field name="model">service.allocate</field>
+        <field name="arch" type="xml">
+            <form string="Allocated">
+
+                    <group>
+                        <group>
+                            <group>
+                                <field name="service_template_id"/>
+                                <field name="off_duty"/>
+                                <field name="service_container_id" options="{'no_create_edit': True}"/>
+                                <br/>
+                                <field name="scheduled_start"/>
+                                <field name="scheduled_stop"/>
+                                <field name="start_real"/>
+                                <field name="stop_real"/>
+                                <field name="state"/>
+                                <br/>
+                                <field name="parent_service_id" readonly="1"
+                                    attrs="{'invisible':[('off_duty','==',False)]}"/>
+                                <field name="next_service_id" readonly="1"
+                                    attrs="{'invisible':[('off_duty','!=',False)]}"/>
+                                <br/><br/>
+                                <field name="generation_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <group attrs="{'invisible':[('off_duty','!=',False)]}">
+                            <field name="employee_ids" widget="many2many_tags"/>
+                            <field name="employee_check" readonly="1" force_save="1"/>
+                            <field name="employee_names" force_save="1"/>
+                            <button style="font-size:.8em"
+                                name="check_skill_request" colspan="2"
+                                string="Check Skills"
+                                type="object" class="btn-primary"/>
+                            <br/>
+                            <field name="equipment_ids" widget="many2many_tags"/>
+                            <field name="equipment_check" readonly="1" force_save="1"/>
+                            <button style="font-size:.8em"
+                                name="check_equipment_request" colspan="2"
+                                string="Check Equipments"
+                                type="object" class="btn-primary"/>
+                            <br/>
+                            <field name="vehicle_ids" widget="many2many_tags"/>
+                            <field name="vehicle_check" readonly="1" force_save="1"/>
+                            <button style="font-size:.8em"
+                                name="check_vehicle_request" colspan="2"
+                                string="Check Vehicles"
+                                type="object" class="btn-primary"/>
+                            <br/>
+                            
+                        </group>
+                        <group>
+                            <group>
+                                <button
+                                    name="%(hr_duty_planner.service_duplicate_wizard)d"
+                                    attrs="{'invisible':[('off_duty','!=',False)]}"
+                                    string="Duplicate Service" type="action"
+                                    context="{'default_service_allocate_id': id}"
+                                    class="oe_highlight"/>
+                            </group>
+                            <br/>
+                            <group string="Test buttons">
+                                <button
+                                    name="double_assign" colspan="2"
+                                    string="Check double assignments PopUp"
+                                    context = "{'resource_type':'all', 'srv_id': id}"
+                                    type="object" class="btn-primary"/>
+                                <br/>
+                                <button name="rule_call" colspan="2"
+                                        string="Check hour-active-week PopUp"
+                                        context = "{'rule_name':'hour_active_week',
+                                                    'parameters':'{}',
+                                                    'srv_id': id,
+                                                    'res_obj': False}"
+                                        type="object" class="btn-primary"/>
+                                <br/>
+                                <button name="check_resource_rule" colspan="2"
+                                        string="Check resources rules Log"
+                                        context = "{'srv_id': id}"
+                                        type="object" class="btn-primary"/>
+                            </group>
+                        </group>
+                    </group>
+
+            </form>
+        </field>
+     </record>
+
+    <record model="ir.ui.view" id="service_allocate_calendar" >
+        <field name="name">Service Calendar</field>
+        <field name="model">service.allocate</field>
+        <field name="arch" type="xml">
+            <calendar
+                date_start="scheduled_start"
+                date_stop="scheduled_stop"
+                color="service_template_id"
+                mode="week"
+                >
+                <!--
+                _todo_ disabled waiting a better UI
+                <field name="parent_service_id"/>
+                <field name="id"/>
+                <field name="next_service_id"/>
+                -->
+                <field name="service_template_id"/>
+                <field name="employee_check"/>
+                <field name="employee_names"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="service_allocate_timeline" >
+        <field name="name">Service Timeline</field>
+        <field name="model">service.allocate</field>
+        <field name="type">timeline</field>
+        <field name="arch" type="xml">
+            <!-- _TODO_ set background color -->
+            <timeline date_start="scheduled_start"
+                      date_stop="scheduled_stop"
+                      string="Service"
+                      default_group_by="service_container_id"
+                      event_open_popup="true"
+                      zoomKey="ctrlKey"
+                      colors="#ff0000:employee_ids == false;#00ff00:employee_ids == true;"
+                      dependency_arrow_old="task_dependency_ids">
+                <field name="id"/>
+                <field name="employee_names"/>
+                <field name="parent_service_id"/>
+                <field name="next_service_id"/>
+                <templates>
+                    <div t-name="timeline-item">
+                        From 
+                        <span t-esc="record.scheduled_start"/>
+                        to
+                        <span t-esc="record.scheduled_stop"/>
+                        <br/>
+                        ID
+                        <span t-esc="record.id"/>
+                        <!-- _todo_ _fix_ show parent/next id-->
+                        <t t-if="record.parent_service_id or record.next_service_id">
+                            (
+                        </t>
+                        <t t-if="record.parent_service_id">
+                            Parent
+                            <span t-esc="record.parent_service_id"/>
+                        </t>
+                        <t t-if="record.next_service_id">
+                            Next
+                            <span t-esc="record.next_service_id"/>
+                        </t>
+                        <t t-if="record.parent_service_id or record.next_service_id">
+                            )
+                        </t>
+                        <br/>
+                        Employee
+                        <div t-esc="record.employee_names"/>
+                    </div>
+                </templates>
+            </timeline>
+        </field>
+    </record>
+
+</odoo>

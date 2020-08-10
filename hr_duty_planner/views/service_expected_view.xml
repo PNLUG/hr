@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+    <!-- ############# EXPECTED SKILL #################### -->
+    <record model="ir.ui.view" id="expected_skill_tree">
+        <field name="name">Expected Skill</field>
+        <field name="model">expected.skill</field>
+        <field name="arch" type="xml">
+            <tree string="Skills">
+                <field name="skill_id"/>
+                <field name="min_qty" string="Min Qty"/>
+                <field name="max_qty" string="Max Qty"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ############# EXPECTED EQUIPMENT #################### -->
+    <record model="ir.ui.view" id="expected_equipment_category_tree">
+        <field name="name">Expected Equipment Category</field>
+        <field name="model">expected.eqpmnt_cat</field>
+        <field name="arch" type="xml">
+            <tree string="Equipment Category">
+                <field name="eqp_cat_id"/>
+                <field name="min_qty" string="Min Qty"/>
+                <field name="max_qty" string="Max Qty"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ############# EXPECTED VEHICLES #################### -->
+    <record model="ir.ui.view" id="expected_vehicle_category_tree">
+        <field name="name">Expected Vehicle Types</field>
+        <field name="model">expected.vhcl_category</field>
+        <field name="arch" type="xml">
+            <tree string="Vehicle Type">
+                <field name="vehicle_category_id"/>
+                <field name="min_qty" string="Min Qty"/>
+                <field name="max_qty" string="Max Qty"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

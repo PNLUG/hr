@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+    <!-- add menu voice for Service -->
+
+    <!-- manage Service Planner -->
+    <menuitem
+        id="menu_hr_duty_planner"
+        name="Services planning"
+        web_icon="hr_duty_planner,static/description/icon.png"
+        sequence="110"/>
+
+    <!-- manage Services Allocated -->
+    <act_window
+        id = "act_service_allocate_cal"
+        name = "Services"
+        res_model = "service.allocate"
+        view_mode = "calendar,timeline,tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_allocate_cal"
+        name = "Services"
+        parent = "menu_hr_duty_planner"
+        sequence = "100"
+        action = "act_service_allocate_cal"
+        />
+
+    <!-- manage Utility -->
+    <act_window
+        id = "act_utility"
+        name = "Utility"
+        res_model = "service.utility"
+        view_mode = "form"
+        />
+
+    <menuitem
+        id = "menu_utility"
+        name = "Utility"
+        parent = "menu_hr_duty_planner"
+        sequence = "115"
+        action = "act_utility"
+        />
+
+    <!-- manage Template -->
+    <menuitem
+        id = "menu_template"
+        name = "Templates"
+        parent = "menu_hr_duty_planner"
+        sequence = "120"
+        />
+
+    <!-- manage Rule -->
+    <menuitem
+        id = "menu_rule"
+        name = "Rules"
+        parent = "menu_hr_duty_planner"
+        sequence = "130"
+        />
+
+    <!-- Rules -->
+    <act_window
+        id = "act_service_rule"
+        name = "Rules"
+        res_model = "service.rule"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_rule"
+        name = "Rules"
+        parent = "menu_rule"
+        sequence = "100"
+        action = "act_service_rule"
+        />
+
+    <act_window
+        id = "act_service_rulefield"
+        name = "Rules Fields"
+        res_model = "service.rulefield"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_rulefield"
+        name = "Rules Fields"
+        parent = "menu_rule"
+        sequence = "110"
+        action = "act_service_rulefield"
+        />
+
+    <act_window
+        id = "act_service_profile"
+        name = "Profiles"
+        res_model = "service.profile"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_profile"
+        name = "Profiles"
+        parent = "menu_rule"
+        sequence = "120"
+        action = "act_service_profile"
+        />
+
+    <!-- Reporting -->
+    <menuitem
+        id = "menu_report"
+        name = "Report"
+        parent = "menu_hr_duty_planner"
+        sequence = "140"
+        />
+
+    <!-- report: plain view -->
+    <act_window
+        id = "act_service_report"
+        name = "Report list"
+        res_model = "service.allocate"
+        view_mode = "tree"
+        />
+
+    <menuitem
+        id = "menu_list_report"
+        name = "Plain report"
+        parent = "menu_report"
+        sequence = "100"
+        action = "act_service_report"
+        />
+
+    <!-- report: export xlsx -->
+    <record id="wizard_xlsx_allocateservice" model="ir.ui.view">
+        <field name="name">xlsx_allocateservice</field>
+        <field name="model">xlsx.allocate.service.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Choose:">
+                <group>
+                    <group>
+                        <field name="layout_report"/>
+                    </group>
+                    <group>
+                        <field name="date_from" required="True"/>
+                        <field name="date_to" required="True"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="generate_report" string="Compute" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-default" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="act_xlsx_export_report" model="ir.actions.act_window">
+        <field name="name">Export allocated service</field>
+        <field name="res_model">xlsx.allocate.service.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="wizard_xlsx_allocateservice"/>
+    </record>
+
+    <menuitem
+        id = "menu_xlsx_export_report"
+        name = "Export XLSX data"
+        parent = "menu_report"
+        sequence = "110"
+        action = "act_xlsx_export_report"
+        />
+
+    <!-- manage Container Services -->
+    <act_window
+        id = "act_service_container"
+        name = "Service Container"
+        res_model = "service.container"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_container"
+        name = "Service Container"
+        parent = "menu_template"
+        sequence = "10"
+        action = "act_service_container"
+        />
+
+    <!-- manage Service Aggregators -->
+    <act_window
+        id = "act_service_aggregator"
+        name = "Services Aggregator"
+        res_model = "service.aggregator"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_aggregator"
+        name = "Services Aggregator"
+        parent = "menu_template"
+        sequence = "30"
+        action = "act_service_aggregator"
+        />
+
+    <!-- manage Template Services -->
+    <act_window
+        id = "act_service_template"
+        name = "Service Templates"
+        res_model = "service.template"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_service_template"
+        name = "Service Templates"
+        parent = "menu_template"
+        sequence = "20"
+        action = "act_service_template"
+        />
+
+    <!-- manage Expected Skills -->
+    <act_window
+        id = "act_expected_skill"
+        name = "Expected Skills"
+        res_model = "expected.skill"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_expected_skill"
+        name = "Expected Skills"
+        parent = "menu_template"
+        sequence = "100"
+        action = "act_expected_skill"
+        />
+
+    <!-- manage Expected Equipment Categories -->
+    <act_window
+        id = "act_expected_eqpmt_category"
+        name = "Expected Equipment Categories"
+        res_model = "expected.eqpmnt_cat"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_expected_eqpmt_category"
+        name = "Expected Equipment Categories"
+        parent = "menu_template"
+        sequence = "110"
+        action = "act_expected_eqpmt_category"
+        />
+
+    <!-- manage Expected Vehicle Types -->
+    <act_window
+        id = "act_expected_vhcl_category"
+        name = "Expected Vehicle Types"
+        res_model = "expected.vhcl_category"
+        view_mode = "tree,form"
+        />
+
+    <menuitem
+        id = "menu_expected_vhcl_category"
+        name = "Expected Vehicle Types"
+        parent = "menu_template"
+        sequence = "120"
+        action = "act_expected_vhcl_category"
+        />
+
+
+
+</odoo>

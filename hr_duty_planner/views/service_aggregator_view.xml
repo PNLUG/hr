@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+
+    <!-- ############# SERVICE COLLECTOR #################### -->
+    <record model="ir.ui.view" id="service_aggregator_tree">
+        <field name="name">Service Aggregator</field>
+        <field name="model">service.aggregator</field>
+        <field name="arch" type="xml">
+            <tree string="Aggregators">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="service_template_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+     </record>
+
+    <record model="ir.ui.view" id="service_aggregator_form">
+        <field name="name">Service Aggregator</field>
+        <field name="model">service.aggregator</field>
+        <field name="arch" type="xml">
+            <form string="Service Aggregator">
+                <group>
+                    <h1><field name="name"/></h1>
+                    <br/>
+                    <group>
+                        <field name="description"/>
+                        <field name="service_template_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

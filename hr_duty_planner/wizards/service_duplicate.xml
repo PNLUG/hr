@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+    <!--
+        Duplicate allocate service
+    -->
+    <record model="ir.ui.view" id="service_duplicate_form">
+        <field name="name">service.duplicate.wizard</field>
+        <field name="model">service.duplicate</field>
+        <field name="arch" type="xml">
+            <form string="Duplicate Services">
+                <group>
+                    <group>
+                        <field name="service_allocate_id" options="{'no_create_edit': True}"
+                        domain="[('id', '=', active_id)]" default=""
+                        invisible="True"/>
+                        <field name="date_init"/>
+                        <field name="date_stop"/>
+                        <field name="interval"/>
+                        <br/>
+                        <field name="copy_employee"/>
+                        <field name="copy_equipment"/>
+                        <field name="copy_vehicle"/>
+                        <br/>
+                        <field name="day_mon"/>
+                        <field name="day_tue"/>
+                        <field name="day_wed"/>
+                        <field name="day_thu"/>
+                        <field name="day_fri"/>
+                        <field name="day_sat"/>
+                        <field name="day_sun"/>
+                        <field name="day_wrk"/>
+                        <field name="day_hol"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="duplicate_service" string="Duplicate" type="object"
+                        class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="service_duplicate_wizard">
+        <field name="name">Duplicate Services</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">service.duplicate</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="service_duplicate_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

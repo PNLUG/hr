@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_expected_vhcl_category,access_expected_vhcl_category,model_expected_vhcl_category,base.group_user,1,1,1,1
+access_expected_eqpmnt_cat,access_expected_eqpmnt_cat,model_expected_eqpmnt_cat,base.group_user,1,1,1,1
+access_expected_skill,access_expected_skill,model_expected_skill,base.group_user,1,1,1,1
+access_service_container,access_service_container,model_service_container,base.group_user,1,1,1,1
+access_service_state,access_service_state,model_service_state,base.group_user,1,1,1,1
+access_service_template,access_service_template,model_service_template,base.group_user,1,1,1,1
+access_service_allocate,access_service_allocate,model_service_allocate,base.group_user,1,1,1,1
+access_service_rule,access_service_rule,model_service_rule,base.group_user,1,1,0,0
+access_service_profile,access_service_profile,model_service_profile,base.group_user,1,1,1,1
+access_service_profileparameter,access_service_profileparameter,model_service_profileparameter,base.group_user,1,1,1,1
+access_service_rulefield,access_service_rulefield,model_service_rulefield,base.group_user,1,1,0,0
+access_service_aggregator,access_service_aggregator,model_service_aggregator,base.group_user,1,1,1,1
+access_service_utility,access_service_utility,model_service_utility,base.group_user,1,1,1,1

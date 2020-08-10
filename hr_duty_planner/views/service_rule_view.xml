@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+
+    <!-- ############# SERVICE RULE #################### -->
+    <record model="ir.ui.view" id="service_rule_tree">
+        <field name="name">Service Rule</field>
+        <field name="model">service.rule</field>
+        <field name="arch" type="xml">
+            <tree string="Rule">
+                <field name="is_active"/>
+                <field name="description"/>
+                <field name="method"/>
+                <field name="field_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="service_rule_form">
+        <field name="name">Service Rule</field>
+        <field name="model">service.rule</field>
+        <field name="arch" type="xml">
+            <form string="Service Rule">
+                <group>
+                    <group>
+                        <group>
+                            <field name="method"/>
+                            <field name="description"/>
+                        </group>
+                        <group>
+                            <button name="rule_call" string="Check rule"
+                                    context = "{'rule_name':'method'}"
+                                    type="object" class="btn-primary"/>
+                        </group>
+                        <br/>
+                        <group>
+                            <field name="field_ids" widget="many2many_tags"/>
+                            <field name="is_active"/>
+                        </group>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- ############# SERVICE RULE FIELD #################### -->
+    <record model="ir.ui.view" id="service_rulefield_tree">
+        <field name="name">Service Rule Field</field>
+        <field name="model">service.rulefield</field>
+        <field name="arch" type="xml">
+            <tree string="Rule Fields">
+                <field name="rule_id"/>
+                <field name="field_name"/>
+                <field name="field_desc"/>
+                <field name="field_default"/>
+                <field name="field_mandatory"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="service_rulefield_form">
+        <field name="name">Service Rule Fields</field>
+        <field name="model">service.rulefield</field>
+        <field name="arch" type="xml">
+            <form string="Service Rule Fields">
+                <group>
+                    <group>
+                        <group>
+                            <field name="rule_id"/>
+                            <field name="field_name"/>
+                            <field name="field_desc"/>
+                            <field name="field_default"/>
+                            <field name="field_mandatory"/>
+                        </group>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

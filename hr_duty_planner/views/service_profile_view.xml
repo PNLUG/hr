@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 Stefano Consolaro (Ass. PNLUG - Gruppo Odoo <http://odoo.pnlug.it>)
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+-->
+<odoo>
+    <!-- ############# SERVICE PROFILE #################### -->
+    <record model="ir.ui.view" id="service_profile_tree">
+        <field name="name">Service Profile</field>
+        <field name="model">service.profile</field>
+        <field name="arch" type="xml">
+            <tree string="Profile">
+                <field name="name"/>
+                <field name="rule_ignore"/>
+                <field name="parameter_ids" widget="many2many_tags"
+                    attrs="{'invisible':[('rule_ignore','=',True)]}"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="service_profile_form">
+        <field name="name">Service Profile</field>
+        <field name="model">service.profile</field>
+        <field name="arch" type="xml">
+            <form string="Service Profile">
+                <group>
+                    <group>
+                        <h1><field name="name"/></h1>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <field name="rule_ignore"/>
+                    </group>
+                    <br/>
+                    <group attrs="{'invisible':[('rule_ignore','=',True)]}">
+                        <field name="parameter_ids" widget="one2many_list">
+                            <tree string="Lines" editable="bottom">
+                                <field name="rule_id"/>
+                                <field name="rule_field_id"/>
+                                <field name="field_value"/>
+                            </tree>
+                        </field>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- ############# SERVICE PROFILE PARAM #################### -->
+    <record model="ir.ui.view" id="service_profileparameter_tree">
+        <field name="name">Service Profile Param</field>
+        <field name="model">service.profileparameter</field>
+        <field name="arch" type="xml">
+            <tree string="Profile Param">
+                 <field name="rule_id"/>
+                <field name="rule_field_id"/>
+                <field name="field_value"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="service_profileparameter_form">
+        <field name="name">Service Profile Param</field>
+        <field name="model">service.profileparameter</field>
+        <field name="arch" type="xml">
+            <form string="Service Profile Param">
+                <group>
+                    <group>
+                        <field name="rule_id"/>
+                        <field name="rule_field_id"/>
+                        <field name="field_value"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>
