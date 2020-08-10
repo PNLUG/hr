@@ -3,7 +3,6 @@ ToDo list
 
 **Models**
     * service template
-        * DEV limit to 1 Container Service for off_duty type service
         * DEV management of working/holiday calendar on generation
     * service allocate
         * DEV activate _compute_emply_name method to update all employees name list
@@ -20,6 +19,8 @@ ToDo list
         * FIX layout
     * service allocate tree
         * FIX check rule button position
+    * service allocate form
+        * DEV filter resources on availability
     * service allocate calendar
         * DEV text format
         * DEV check/alert template expected fulfillment
@@ -34,7 +35,7 @@ ToDo list
         * FIX on deploy lock edit option
         * FIX optimize double_assign method
     * service profile
-        * FIX filter available fields for selected rule
+        * FIX filter available fields for selected rule !!!
         * DEV create check for rule-field assignment (association, mandatory)
     * reporting
         * DEV basic report

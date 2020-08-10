@@ -325,8 +325,7 @@ class ServiceAllocate(models.Model):
         return_equipment = self.check_equipment_rule(parameters)
         return_vehicle = self.check_vehicle_rule(parameters)
 
-        return {
-                'employee': return_employee,
+        return {'employee': return_employee,
                 'equipment': return_equipment,
                 'vehicle': return_vehicle,
                 }
@@ -348,7 +347,7 @@ class ServiceAllocate(models.Model):
                            }
         service_list = (self.env['service.allocate']
                             .search([('id', '=', parameters['srv_id'])])
-                        if parameters['srv_id']>0
+                        if parameters['srv_id'] > 0
                         else self.env['service.allocate'].search([])
                         )
         for service in service_list:
@@ -371,15 +370,15 @@ class ServiceAllocate(models.Model):
                 # execute the memorized rules
                 for method in rule_method:
                     result = self.rule_call({
-                                    'rule_name': method,
-                                    'parameters': json.dumps(rule_method[method]),
-                                    'srv_id': employee.id,
-                                    'res_obj': employee,
-                                    })
+                        'rule_name': method,
+                        'parameters': json.dumps(rule_method[method]),
+                        'srv_id': employee.id,
+                        'res_obj': employee,
+                        })
                     result['data'].update(employee_result['data'])
                     employee_result = {
-                        'message': employee_result['message'] +
-                                employee.name + ': ' + result['message'] + '\n',
+                        'message': (employee_result['message'] +
+                                    employee.name + ': ' + result['message'] + '\n'),
                         'result': True * result['result'],
                         'data': result['data'],
                         }
@@ -402,7 +401,7 @@ class ServiceAllocate(models.Model):
                           }
         service_list = (self.env['service.allocate']
                             .search([('id', '=', parameters['srv_id'])])
-                        if parameters['srv_id']>0
+                        if parameters['srv_id'] > 0
                         else self.env['service.allocate'].search([])
                         )
         for service in service_list:
@@ -425,15 +424,15 @@ class ServiceAllocate(models.Model):
                 # execute the memorized rules
                 for method in rule_method:
                     result = self.rule_call({
-                                    'rule_name': method,
-                                    'parameters': json.dumps(rule_method[method]),
-                                    'srv_id': vehicle.id,
-                                    'res_obj': vehicle,
-                                    })
+                        'rule_name': method,
+                        'parameters': json.dumps(rule_method[method]),
+                        'srv_id': vehicle.id,
+                        'res_obj': vehicle,
+                        })
                     result['data'].update(vehicle_result['data'])
                     vehicle_result = {
-                        'message': vehicle_result['message'] +
-                                vehicle.name + ': ' + result['message'] + '\n',
+                        'message': (vehicle_result['message'] +
+                                    vehicle.name + ': ' + result['message'] + '\n'),
                         'result': True * result['result'],
                         'data': result['data'],
                         }
@@ -456,7 +455,7 @@ class ServiceAllocate(models.Model):
                             }
         service_list = (self.env['service.allocate']
                             .search([('id', '=', parameters['srv_id'])])
-                        if parameters['srv_id']>0
+                        if parameters['srv_id'] > 0
                         else self.env['service.allocate'].search([])
                         )
         for service in service_list:
@@ -479,15 +478,15 @@ class ServiceAllocate(models.Model):
                 # execute the memorized rules
                 for method in rule_method:
                     result = self.rule_call({
-                                    'rule_name': method,
-                                    'parameters': json.dumps(rule_method[method]),
-                                    'srv_id': equipment.id,
-                                    'res_obj': equipment,
-                                    })
+                        'rule_name': method,
+                        'parameters': json.dumps(rule_method[method]),
+                        'srv_id': equipment.id,
+                        'res_obj': equipment,
+                        })
                     result['data'].update(equipment_result['data'])
                     equipment_result = {
-                        'message': equipment_result['message'] +
-                                equipment.name + ': ' + result['message'] + '\n',
+                        'message': (equipment_result['message'] +
+                                    equipment.name + ': ' + result['message'] + '\n'),
                         'result': True * result['result'],
                         'data': result['data'],
                         }
@@ -495,7 +494,7 @@ class ServiceAllocate(models.Model):
 
     # ##################################################################################
     # OVERRIDE ORIGINAL METHOD
-    
+
     @api.model
     def create(self, values):
         """

@@ -23,7 +23,7 @@
                     <button name="rule_call" colspan="2"
                             string="Check hour-active-week"
                             context = "{'rule_name':'hour_active_week',
-                                        'parameters':'{}',
+                                        'param':'{}',
                                         'srv_id': 1,
                                         'res_obj': False}"
                             type="object" class="btn-primary"/>

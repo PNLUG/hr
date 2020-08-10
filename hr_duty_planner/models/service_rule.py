@@ -46,7 +46,7 @@ class ServiceRule(models.Model):
         rule_result = True
         rule_msg = ''
 
-        if not resource_type in available_resource:
+        if resource_type not in available_resource:
             return {'message': _('Resource not available: %s') % (resource_type),
                     'result': False,
                     'data': {}
@@ -192,7 +192,7 @@ class ServiceRule(models.Model):
                     'result': False,
                     'data': {}
                     }
-        
+
         # Get the method from 'self' or invalid method.
         method = getattr(self, rule_name, "_invalid_method")
         # Call the method selected
@@ -241,10 +241,11 @@ class ServiceRule(models.Model):
 
     def hour_active_periond(self, parameters):
         """
-        Calculate the total of active hours of a resource in a period of time.
-        Active hours are on no off-duty services.
+        Calculates the total of active hours of a resource in a period of time.
+        If period is not defined uses current year.
+        Active hours are on not off-duty services.
         @param  parameters  dict: parameters to pass to the method
-            @param period dict: {'date_start':, 'date_stop': } period limit
+            @param period dict: {'date_start':, 'date_stop': } period limits
             @param srv_id  int: service to analyze; -1 for all
             @param res_obj obj: resourse object to analyze
 
@@ -264,17 +265,17 @@ class ServiceRule(models.Model):
 
         service_list = (self.env['service.allocate']
                             .search([('id', '=', parameters['srv_id'])])
-                        if parameters['srv_id']>0
+                        if parameters['srv_id'] > 0
                         else self.env['service.allocate'].search([])
                         )
         for service in service_list:
             for employee in service.employee_ids:
                 result = self.hour_active_periond_employee(
-                            {'period' : {'date_start': date_start,
-                                        'date_stop': date_stop,
-                                        },
-                            'employee_id': employee.id,
-                            })
+                    {'period' : {'date_start': date_start,
+                                 'date_stop': date_stop,
+                                 },
+                     'employee_id': employee.id,
+                     })
                 total_time += result['data']['hours']
         global_result['message'] += (_('Employees hours %s') % (total_time)) + '\n'
         global_result['data']['hour_empl'] = total_time
@@ -283,11 +284,11 @@ class ServiceRule(models.Model):
         for service in service_list:
             for equipment in service.equipment_ids:
                 result = self.hour_active_periond_equipment(
-                            {'period' : {'date_start': date_start,
-                                        'date_stop': date_stop,
-                                        },
-                            'equipment_id': equipment.id,
-                            })
+                    {'period' : {'date_start': date_start,
+                                 'date_stop': date_stop,
+                                 },
+                     'equipment_id': equipment.id,
+                     })
                 total_time += result['data']['hours']
         global_result['message'] += (_('Equipments hours %s') % (total_time)) + '\n'
         global_result['data']['hour_eqpm'] = total_time
@@ -296,11 +297,11 @@ class ServiceRule(models.Model):
         for service in service_list:
             for vehicle in service.vehicle_ids:
                 result = self.hour_active_periond_vehicle(
-                            {'period' : {'date_start': date_start,
-                                        'date_stop': date_stop,
-                                        },
-                            'vehicle_id': vehicle.id,
-                            })
+                    {'period' : {'date_start': date_start,
+                                 'date_stop': date_stop,
+                                 },
+                     'vehicle_id': vehicle.id,
+                     })
                 total_time += result['data']['hours']
         global_result['message'] += (_('Vehicle hours %s') % (total_time)) + '\n'
         global_result['data']['hour_vhcl'] = total_time
@@ -318,7 +319,7 @@ class ServiceRule(models.Model):
             @param period       dict: {'date_start':, 'date_stop': } period limit
             @param employee_id  int: employee to analyze
 
-        _todo_ 
+        _todo_
             manage on-call shift
             manage real start/stop date
         """
@@ -343,8 +344,8 @@ class ServiceRule(models.Model):
         # get duration of each service
         for fetch_srv_id in self.env.cr.fetchall():
             total_time += self.env['service.allocate'] \
-                                .search([('id', 'in', fetch_srv_id)]) \
-                                .service_template_id.duration
+                .search([('id', 'in', fetch_srv_id)]) \
+                .service_template_id.duration
         # _todo_
         # raise UserError(_('Totale ore %s') % (total_time))
         return {'message': _('Totale ore: %s') % (total_time),
@@ -360,7 +361,7 @@ class ServiceRule(models.Model):
             @param period       dict: {'date_start':, 'date_stop': } period limit
             @param equipment_id int: equipment to analyze
 
-        _todo_ 
+        _todo_
             manage on-call shift
             manage real start/stop date
         """
@@ -385,8 +386,8 @@ class ServiceRule(models.Model):
         # get duration of each service
         for fetch_srv_id in self.env.cr.fetchall():
             total_time += self.env['service.allocate'] \
-                                .search([('id', 'in', fetch_srv_id)]) \
-                                .service_template_id.duration
+                .search([('id', 'in', fetch_srv_id)]) \
+                .service_template_id.duration
         # _todo_
         # raise UserError(_('Totale ore %s') % (total_time))
         return {'message': _('Totale ore: %s') % (total_time),
@@ -402,7 +403,7 @@ class ServiceRule(models.Model):
             @param period       dict: {'date_start':, 'date_stop': } period limit
             @param vehicle_id   int: vehicle to analyze
 
-        _todo_ 
+        _todo_
             manage on-call shift
             manage real start/stop date
         """
@@ -427,14 +428,38 @@ class ServiceRule(models.Model):
         # get duration of each service
         for fetch_srv_id in self.env.cr.fetchall():
             total_time += self.env['service.allocate'] \
-                                .search([('id', 'in', fetch_srv_id)]) \
-                                .service_template_id.duration
+                .search([('id', 'in', fetch_srv_id)]) \
+                .service_template_id.duration
         # _todo_
         # raise UserError(_('Totale ore %s') % (total_time))
         return {'message': _('Totale ore: %s') % (total_time),
                 'result': True,
                 'data': {'hours': total_time}
                 }
+
+    def hour_active_month(self, parameters):
+        """
+        Calculate the total of active hours of a resource in the last 28 days.
+        Active hours are on no off-duty services.
+        @param  parameters  dict: {'date_start':} last day of month to check
+        @param  srv_id  int: service to analyze
+        @param  res_obj obj: resourse object to analyze
+        """
+
+        date_stop = parameters['period']['date_stop'] \
+            if parameters['period'] and parameters['period']['date_stop'] \
+            else datetime.datetime.now()
+        date_start = date_stop - datetime.timedelta(days=28)
+
+        result = self.env['service.rule'] \
+                     .hour_active_periond({'period': {'date_start': date_start,
+                                                      'date_stop': date_stop,
+                                                      },
+                                           'srv_id': parameters['srv_id'],
+                                           'res_obj': False,
+                                           })
+        self.result_message = result['message']
+        return result
 
     def hour_active_week(self, param, srv_id, res_obj):
         """
@@ -472,10 +497,14 @@ class ServiceRule(models.Model):
         By active hours is meant not work or on call
         _todo_ define/set active shift
         """
-        return {'message': 'hour_rest_week To DO', 'result': True, 'data': {'hour': 8}}
+        return {'message': 'hour_rest_week _ToDo_',
+                'result': True,
+                'data': {'hour': 8}}
 
-    def hour_active_month(self, param, srv_id, res_obj):
+    def hour_active_month_copy(self, param, srv_id, res_obj):
         """
+        _todo_ temporary copy to use/delete
+
         Calculate the total of active hours of a resource in a month.
         By active hours is meant work+on call
 

@@ -73,6 +73,16 @@ class ServiceTemplate(models.Model):
         )
 
     @api.multi
+    @api.onchange('service_container_ids')
+    def _limit_container_count(self):
+        """
+        Limit service container to 1
+        """
+        if self.off_duty and len(self.service_container_ids) > 1:
+            raise ValidationError(_('Only one Container Service allowed'))
+        return
+
+    @api.multi
     def write(self, values):
         """
         Add control for fields value on record changes
